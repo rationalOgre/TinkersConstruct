@@ -1,12 +1,8 @@
 package tconstruct.library.armor;
 
 import ic2.api.item.*;
-import cpw.mods.fml.relauncher.*;
-
-import tconstruct.client.armor.ModelBipedArmor;
 
 import net.minecraft.block.BlockDispenser;
-import net.minecraft.client.model.ModelBiped;
 import net.minecraft.dispenser.IBehaviorDispenseItem;
 import net.minecraft.entity.*;
 import net.minecraft.entity.player.EntityPlayer;
@@ -15,6 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ISpecialArmor;
+import net.minecraftforge.common.ISpecialArmor.ArmorProperties;
 
 /**
  * NBTTags
@@ -26,7 +23,6 @@ public abstract class ArmorCore extends ItemArmor implements ICustomElectricItem
 	public final EnumArmorPart armorPart;
     private static final IBehaviorDispenseItem dispenserBehavior = new BehaviorDispenseArmorCopy();
     public final int baseProtection;
-	ModelBiped modelbiped = new ModelBipedArmor();
 
 	public ArmorCore(int par1, int baseProtection, EnumArmorPart part) {
 		super(par1, EnumArmorMaterial.CHAIN, 0, 0);
@@ -53,13 +49,6 @@ public abstract class ArmorCore extends ItemArmor implements ICustomElectricItem
 
 		return par1ItemStack;
 	}
-	
-	@Override
-    @SideOnly(Side.CLIENT)
-    public ModelBiped getArmorModel(EntityLivingBase entityLiving, ItemStack itemStack, int armorSlot){
-//        return new ModelBipedArmor();
-		return null;
-    }
 	
 	//ISpecialArmor overrides
 	@Override
