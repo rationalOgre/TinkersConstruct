@@ -259,10 +259,6 @@ public abstract class ArmorCore extends ItemArmor implements ICustomElectricItem
 	public boolean isValidArmor(ItemStack stack, int armorType, Entity entity) {
 		return this.armorPart.getPartId() == armorType;
 	}
-	
-    public String getArmorTexture(ItemStack stack, Entity entity, int slot, int layer){
-        return "minecraft:textures/models/armor/iron_layer_" + layer + ".png";
-    }
 
 	/* Proper stack damage */
 	public int getItemMaxDamageFromStack(ItemStack stack) {

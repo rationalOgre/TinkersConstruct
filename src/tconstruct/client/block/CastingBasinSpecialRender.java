@@ -1,20 +1,15 @@
 package tconstruct.client.block;
 
-import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-
-import org.lwjgl.opengl.GL11;
-
-import tconstruct.blocks.logic.CastingBasinLogic;
-import tconstruct.entity.FancyEntityItem;
 import tconstruct.library.ItemBlocklike;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import cpw.mods.fml.relauncher.*;
+import net.minecraft.client.renderer.entity.*;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.item.*;
+import net.minecraft.tileentity.TileEntity;
+import org.lwjgl.opengl.GL11;
+import tconstruct.blocks.logic.CastingBasinLogic;
+import tconstruct.entity.FancyEntityItem;
 
 /* Special renderer, only used for drawing tools */
 
@@ -53,12 +48,17 @@ public class CastingBasinSpecialRender extends TileEntitySpecialRenderer
         entityitem.hoverStart = 0.0F;
         GL11.glPushMatrix();
         GL11.glTranslatef(1F, 0.675F, 1.0F);
-        //GL11.glRotatef(90F, 1, 0F, 0F);
+//        GL11.glRotatef(90F, 1, 0F, 0F);
         GL11.glScalef(1.75F, 1.75F, 1.75F);
         if (stack.getItem() instanceof ItemBlock)
         {
             GL11.glScalef(1.6F, 1.6F, 1.6F);
             GL11.glTranslatef(0F, 0.045F, 0.0f);
+        }else if(!(stack.getItem() instanceof ItemBlocklike)){
+        	GL11.glRotatef(90F, 1F, 0F, 0F);
+        	GL11.glRotatef(90F, 0F, 0F, 1F);
+        	GL11.glScalef(0.75F, 0.75F, 0.75F);
+        	GL11.glTranslatef(0F, -0.235F, -0.36F);
         }
 
         RenderItem.renderInFrame = true;

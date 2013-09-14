@@ -1,9 +1,11 @@
 package tconstruct.library.crafting;
 
-import java.util.ArrayList;
+import tconstruct.library.client.FluidRenderProperties.Applications;
 
+import java.util.ArrayList;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
+import tconstruct.library.client.FluidRenderProperties;
 
 /* Melting becomes hardened */
 public class LiquidCasting
@@ -18,10 +20,23 @@ public class LiquidCasting
      * @param cast The empty item to cast with. ex Ingot Cast
      * @param consume Whether the item should be consumed while casting
      * @param delay Time to cast in ticks
+     * @param startHeight The starting height of the fluid renderer
+     * @param endHeight The ending height of the fluid renderer
+     */
+    public void addCastingRecipe (ItemStack output, FluidStack metal, ItemStack cast, boolean consume, int delay, FluidRenderProperties props){
+        casts.add(new CastingRecipe(output, metal, cast, consume, delay, props));
+    }
+    /** Adds a casting recipe
+     * 
+     * @param output Result of the cast
+     * @param metal Liquid to be used in casting. This also decides how much metal is consumed
+     * @param cast The empty item to cast with. ex Ingot Cast
+     * @param consume Whether the item should be consumed while casting
+     * @param delay Time to cast in ticks
      */
     public void addCastingRecipe (ItemStack output, FluidStack metal, ItemStack cast, boolean consume, int delay)
     {
-        casts.add(new CastingRecipe(output, metal, cast, consume, delay));
+    	addCastingRecipe (output, metal, cast, consume, delay, new FluidRenderProperties(Applications.BASIN));
     }
 
     /** Adds a casting recipe. Does not consume the cast

@@ -1,34 +1,11 @@
 package tconstruct.common;
 
-import java.lang.reflect.Field;
-import java.util.*;
-
 import cpw.mods.fml.common.IFuelHandler;
 import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.registry.*;
 import extrabiomes.api.BiomeManager;
-
-import tconstruct.TConstruct;
-import tconstruct.blocks.*;
-import tconstruct.blocks.logic.*;
-import tconstruct.entity.*;
-import tconstruct.entity.projectile.*;
-import tconstruct.items.*;
-import tconstruct.items.armor.*;
-import tconstruct.items.blocks.*;
-import tconstruct.items.tools.*;
-import tconstruct.landmine.block.BlockLandmine;
-import tconstruct.landmine.item.ItemBlockLandmine;
-import tconstruct.landmine.tileentity.TileEntityLandmine;
-import tconstruct.library.TConstructRegistry;
-import tconstruct.library.armor.EnumArmorPart;
-import tconstruct.library.client.TConstructClientRegistry;
-import tconstruct.library.crafting.*;
-import tconstruct.library.tools.ToolCore;
-import tconstruct.library.util.IPattern;
-import tconstruct.modifiers.*;
-import tconstruct.util.*;
-
+import java.lang.reflect.Field;
+import java.util.*;
 import net.minecraft.block.*;
 import net.minecraft.block.material.*;
 import net.minecraft.creativetab.CreativeTabs;
@@ -43,6 +20,27 @@ import net.minecraftforge.common.*;
 import net.minecraftforge.fluids.*;
 import net.minecraftforge.fluids.FluidContainerRegistry.FluidContainerData;
 import net.minecraftforge.oredict.*;
+import tconstruct.TConstruct;
+import tconstruct.blocks.*;
+import tconstruct.blocks.logic.*;
+import tconstruct.entity.*;
+import tconstruct.entity.projectile.*;
+import tconstruct.items.*;
+import tconstruct.items.armor.*;
+import tconstruct.items.blocks.*;
+import tconstruct.items.tools.*;
+import tconstruct.landmine.block.BlockLandmine;
+import tconstruct.landmine.item.ItemBlockLandmine;
+import tconstruct.landmine.tileentity.TileEntityLandmine;
+import tconstruct.library.TConstructRegistry;
+import tconstruct.library.armor.EnumArmorPart;
+import tconstruct.library.client.*;
+import tconstruct.library.client.FluidRenderProperties.Applications;
+import tconstruct.library.crafting.*;
+import tconstruct.library.tools.ToolCore;
+import tconstruct.library.util.IPattern;
+import tconstruct.modifiers.*;
+import tconstruct.util.*;
 
 public class TContent implements IFuelHandler
 {
@@ -1170,7 +1168,10 @@ public class TContent implements IFuelHandler
         basinCasting.addCastingRecipe(new ItemStack(smeltery, 1, 4), new FluidStack(moltenStoneFluid, TConstruct.ingotLiquidValue), null, true, 100); //seared stone
 
         basinCasting.addCastingRecipe(new ItemStack(speedBlock, 1, 0), new FluidStack(moltenTinFluid, TConstruct.ingotLiquidValue / 9), new ItemStack(Block.gravel), true, 100); //brownstone
-
+        
+        //TODO Test
+        basinCasting.addCastingRecipe(new ItemStack(armorTest), new FluidStack(moltenIronFluid, TConstruct.ingotLiquidValue * 24), new ItemStack(armorPattern, 1, 0), false, 100, new FluidRenderProperties(0.5F, 0.575F, 0.15F, 0.85F, 0.15F, 0.85F));
+        
         //Ore
         Smeltery.addMelting(Block.oreIron, 0, 600, new FluidStack(moltenIronFluid, TConstruct.ingotLiquidValue * 2));
         Smeltery.addMelting(Block.oreGold, 0, 400, new FluidStack(moltenGoldFluid, TConstruct.ingotLiquidValue * 2));

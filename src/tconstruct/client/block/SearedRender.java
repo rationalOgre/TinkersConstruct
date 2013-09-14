@@ -1,17 +1,18 @@
 package tconstruct.client.block;
 
-import tconstruct.blocks.logic.CastingBasinLogic;
-import tconstruct.blocks.logic.CastingTableLogic;
-import tconstruct.blocks.logic.FaucetLogic;
-import tconstruct.client.TProxyClient;
-import tconstruct.common.TContent;
+import tconstruct.TConstruct;
+
+import tconstruct.library.crafting.CastingRecipe;
+
+import cpw.mods.fml.client.registry.*;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fluids.Fluid;
-import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
-import cpw.mods.fml.client.registry.RenderingRegistry;
+import tconstruct.blocks.logic.*;
+import tconstruct.client.TProxyClient;
+import tconstruct.common.TContent;
 
 public class SearedRender implements ISimpleBlockRenderingHandler
 {
@@ -352,9 +353,29 @@ public class SearedRender implements ISimpleBlockRenderingHandler
                 CastingBasinLogic logic = (CastingBasinLogic) world.getBlockTileEntity(x, y, z);
                 if (logic.liquid != null)
                 {
-                    float height = logic.getLiquidAmount() / (logic.getCapacity() * 1.05F) * 0.6875F;
-                    renderer.setRenderBounds(0.0625F, 0.25f, 0.0625F, 0.9375F, 0.25f + height, 0.9375F);
-
+                	float minHeight = 0.25F;
+                	float maxHeight = 0.95F;
+                	
+                	float minX = 0.0625F;
+                	float maxX = 0.9375F;
+                	float minZ = 0.0625F;
+                	float maxZ = 0.9375F;
+                	
+                	ItemStack it = logic.getStackInSlot(0);
+                	if(it != null){
+                		CastingRecipe rec = TConstruct.basinCasting.getCastingRecipe(logic.liquid, it);
+                		if(rec != null){
+                			minHeight = rec.fluidRenderProperties.minHeight;
+                			maxHeight = rec.fluidRenderProperties.maxHeight;
+                			
+                			minX = rec.fluidRenderProperties.minX;
+                			maxX = rec.fluidRenderProperties.maxX;
+                			minZ = rec.fluidRenderProperties.minZ;
+                			maxZ = rec.fluidRenderProperties.maxZ;
+                		}
+                	}
+                    float height = (logic.getLiquidAmount() / (logic.getCapacity() * 1.05F) * 0.6875F) / maxHeight;
+                    renderer.setRenderBounds(minX, minHeight, minZ, maxX, minHeight + height, maxZ);
                     Fluid fluid = logic.liquid.getFluid();
                     BlockSkinRenderHelper.renderLiquidBlock(fluid.getStillIcon(), fluid.getFlowingIcon(), x, y, z, renderer, world);
                     /*if (logic.liquid.itemID < 4096) //Block
