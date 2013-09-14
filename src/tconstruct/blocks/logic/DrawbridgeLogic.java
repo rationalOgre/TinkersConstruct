@@ -341,7 +341,7 @@ public class DrawbridgeLogic extends InventoryLogic implements IFacingLogic, IAc
     @Override
     public void onDataPacket (INetworkManager net, Packet132TileEntityData packet)
     {
-        readFromNBT(packet.customParam1);
+        readFromNBT(packet.data);
         worldObj.markBlockForRenderUpdate(xCoord, yCoord, zCoord);
     }
 

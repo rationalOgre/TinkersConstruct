@@ -153,7 +153,7 @@ public class TitleIcon extends Item
         if (!world.isRemote)
         {
             entity.setPosition(x, y, z);
-            ((EntityLiving) entity).func_110161_a((EntityLivingData)null);
+            ((EntityLiving) entity).onSpawnWithEgg((EntityLivingData)null);
             world.spawnEntityInWorld(entity);
         }
     }
@@ -164,7 +164,7 @@ public class TitleIcon extends Item
         {
             entity.setPosition(x, y, z);
             entity.setAngles(player.cameraYaw, player.cameraYaw);
-            ((EntityLiving) entity).func_110161_a((EntityLivingData)null);
+            ((EntityLiving) entity).onSpawnWithEgg((EntityLivingData)null);
             world.spawnEntityInWorld(entity);
         }
     }
@@ -176,7 +176,7 @@ public class TitleIcon extends Item
             entity.setPosition(x, y, z);
             entity.setAngles(player.cameraYaw, player.cameraYaw);
             entity.setSlimeSize(8);
-            entity.func_110161_a((EntityLivingData)null);
+            entity.onSpawnWithEgg((EntityLivingData)null);
             world.spawnEntityInWorld(entity);
         }
     }
@@ -187,7 +187,7 @@ public class TitleIcon extends Item
         {
             entity.setPosition(x, y, z);
             entity.setSlimeSize(8);
-            entity.func_110161_a((EntityLivingData)null);
+            entity.onSpawnWithEgg((EntityLivingData)null);
             world.spawnEntityInWorld(entity);
         }
     }

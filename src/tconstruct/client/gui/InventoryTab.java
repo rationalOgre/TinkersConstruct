@@ -38,7 +38,7 @@ public class InventoryTab extends GuiButton
         if (this.drawButton)
         {
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            mc.func_110434_K().func_110577_a(background);
+            mc.getTextureManager().bindTexture(background);
             //mc.renderEngine.bindTexture(texture);
 
             int yTexPos = this.enabled ? 0 : 32;

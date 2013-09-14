@@ -127,7 +127,7 @@ public class RenderArmorCast implements IItemRenderer {
 			return;
 		}
 		TextureManager texturemanager = Minecraft.getMinecraft().renderEngine;
-		texturemanager.func_110577_a(texturemanager.func_130087_a(par1ItemStack.getItemSpriteNumber()));
+		texturemanager.getTexture(texturemanager.getResourceLocation(par1ItemStack.getItemSpriteNumber()));
 		Tessellator tessellator = Tessellator.instance;
 		float f = icon.getMinU();
 		float f1 = icon.getMaxU();
@@ -140,13 +140,13 @@ public class RenderArmorCast implements IItemRenderer {
 		GL11.glRotatef(90F, 90F, 0F, 0F);
 		GL11.glScalef(0.9F, 0.9F, 2F);
 		GL11.glTranslatef(0.05F, 0.05F, -0.6F);
-		renderItemIn2D(tessellator, f1, f2, f, f3, icon.getOriginX(), icon.getOriginY(), 0.0625F);
+		renderItemIn2D(tessellator, f1, f2, f, f3, icon.getIconWidth(), icon.getIconHeight(), 0.0625F);
 		GL11.glScalef(0.8F, 0.8F, 0.9F);
 		GL11.glTranslatef(0.125F, 0.125F, 0.05F);
-		renderItemIn2D(tessellator, f1, f2, f, f3, icon.getOriginX(), icon.getOriginY(), 0.0625F);
+		renderItemIn2D(tessellator, f1, f2, f, f3, icon.getIconWidth(), icon.getIconHeight(), 0.0625F);
 		GL11.glScalef(0.6F, 0.6F, 0.6F);
 		GL11.glTranslatef(0.335F, 0.335F, 0.05F);
-		renderItemIn2D(tessellator, f1, f2, f, f3, icon.getOriginX(), icon.getOriginY(), 0.0625F);
+		renderItemIn2D(tessellator, f1, f2, f, f3, icon.getIconWidth(), icon.getIconHeight(), 0.0625F);
 
 		GL11.glPopMatrix();
 	}

@@ -1064,7 +1064,7 @@ public class SmelteryLogic extends InventoryLogic implements IActiveLogic, IFaci
     @Override
     public void onDataPacket (INetworkManager net, Packet132TileEntityData packet)
     {
-        readFromNBT(packet.customParam1);
+        readFromNBT(packet.data);
         worldObj.markBlockForRenderUpdate(xCoord, yCoord, zCoord);
     }
 }

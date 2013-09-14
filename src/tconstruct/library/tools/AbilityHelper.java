@@ -73,7 +73,7 @@ public class AbilityHelper
     {
         if (entity.canAttackWithItem() && stack.hasTagCompound())
         {
-            if (!entity.func_85031_j(player)) // can't attack this entity
+            if (!entity.hitByEntity(player)) // can't attack this entity
             {
                 NBTTagCompound tags = stack.getTagCompound();
                 NBTTagCompound toolTags = stack.getTagCompound().getCompoundTag("InfiTool");
@@ -237,7 +237,7 @@ public class AbilityHelper
                             }
                         }
                         
-                        player.func_130011_c(entity);
+                        player.setLastAttacker(entity);
 
                         if (entity instanceof EntityLivingBase)
                         {
@@ -305,7 +305,7 @@ public class AbilityHelper
                 }
             }
 
-            if (!(living instanceof EntityPlayer) || player.func_96122_a((EntityPlayer) living))
+            if (!(living instanceof EntityPlayer) || player.canAttackPlayer((EntityPlayer) living))
             {
                 List var6 = player.worldObj.getEntitiesWithinAABB(EntityWolf.class,
                         AxisAlignedBB.getAABBPool().getAABB(player.posX, player.posY, player.posZ, player.posX + 1.0D, player.posY + 1.0D, player.posZ + 1.0D).expand(16.0D, 4.0D, 16.0D));
