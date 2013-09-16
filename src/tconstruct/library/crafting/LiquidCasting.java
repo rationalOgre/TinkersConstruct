@@ -20,23 +20,10 @@ public class LiquidCasting
      * @param cast The empty item to cast with. ex Ingot Cast
      * @param consume Whether the item should be consumed while casting
      * @param delay Time to cast in ticks
-     * @param startHeight The starting height of the fluid renderer
-     * @param endHeight The ending height of the fluid renderer
+     * @param props The rendering properties for the casting fluid (may be null)
      */
     public void addCastingRecipe (ItemStack output, FluidStack metal, ItemStack cast, boolean consume, int delay, FluidRenderProperties props){
         casts.add(new CastingRecipe(output, metal, cast, consume, delay, props));
-    }
-    /** Adds a casting recipe
-     * 
-     * @param output Result of the cast
-     * @param metal Liquid to be used in casting. This also decides how much metal is consumed
-     * @param cast The empty item to cast with. ex Ingot Cast
-     * @param consume Whether the item should be consumed while casting
-     * @param delay Time to cast in ticks
-     */
-    public void addCastingRecipe (ItemStack output, FluidStack metal, ItemStack cast, boolean consume, int delay)
-    {
-    	addCastingRecipe (output, metal, cast, consume, delay, new FluidRenderProperties(Applications.BASIN));
     }
 
     /** Adds a casting recipe. Does not consume the cast
@@ -45,10 +32,11 @@ public class LiquidCasting
      * @param metal Liquid to be used in casting. This also decides how much metal is consumed
      * @param cast The empty item to cast with. ex Ingot Cast
      * @param delay Time to cast in ticks
+     * @param props The rendering properties for the casting fluid (may be null)
      */
-    public void addCastingRecipe (ItemStack output, FluidStack metal, ItemStack cast, int delay)
+    public void addCastingRecipe (ItemStack output, FluidStack metal, ItemStack cast, int delay, FluidRenderProperties props)
     {
-        addCastingRecipe(output, metal, cast, false, delay);
+        addCastingRecipe(output, metal, cast, false, delay, props);
     }
 
     /** Adds a casting recipe. Does not consume the cast or have an item to cast against
@@ -56,10 +44,11 @@ public class LiquidCasting
      * @param output Result of the cast
      * @param metal Liquid to be used in casting. This also decides how much metal is consumed
      * @param delay Time to cast in ticks
+     * @param props The rendering properties for the casting fluid (may be null)
      */
-    public void addCastingRecipe (ItemStack output, FluidStack metal, int delay)
+    public void addCastingRecipe (ItemStack output, FluidStack metal, int delay, FluidRenderProperties props)
     {
-        addCastingRecipe(output, metal, null, false, delay);
+        addCastingRecipe(output, metal, null, false, delay, props);
     }
 
     public void addCustomCastingRecipe (CastingRecipe recipe)

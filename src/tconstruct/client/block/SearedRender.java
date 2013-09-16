@@ -164,8 +164,30 @@ public class SearedRender implements ISimpleBlockRenderingHandler
                 CastingTableLogic logic = (CastingTableLogic) world.getBlockTileEntity(x, y, z);
                 if (logic.liquid != null)
                 {
+                	float minHeight = 0.9375F;
+                	float maxHeight = 1F;
+                	
+                	float minX = 0.0625F;
+                	float maxX = 0.9375F;
+                	float minZ = 0.0625F;
+                	float maxZ = 0.9375F;
+                	
+                	ItemStack it = logic.getStackInSlot(0);
+                	if(it != null){
+                		CastingRecipe rec = TConstruct.tableCasting.getCastingRecipe(logic.liquid, it);
+                		if(rec != null){
+                			minHeight = rec.fluidRenderProperties.minHeight;
+                			maxHeight = rec.fluidRenderProperties.maxHeight;
+                			
+                			minX = rec.fluidRenderProperties.minX;
+                			maxX = rec.fluidRenderProperties.maxX;
+                			minZ = rec.fluidRenderProperties.minZ;
+                			maxZ = rec.fluidRenderProperties.maxZ;
+                		}
+                	}
+                	
                     float height = logic.getLiquidAmount() / (logic.getCapacity() * 1.03F) / 16F;
-                    renderer.setRenderBounds(0.0625F, 0.9375F, 0.0625F, 0.9375F, 0.9375F + height, 0.9375F);
+                    renderer.setRenderBounds(minX, minHeight, minZ, maxX, minHeight + height, maxZ);
 
                     Fluid fluid = logic.liquid.getFluid();
                     BlockSkinRenderHelper.renderLiquidBlock(fluid.getStillIcon(), fluid.getFlowingIcon(), x, y, z, renderer, world);

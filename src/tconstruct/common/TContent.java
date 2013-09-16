@@ -1076,44 +1076,44 @@ public class TContent implements IFuelHandler
 
         LiquidCasting tableCasting = TConstructRegistry.instance.getTableCasting();
         //Blank
-        tableCasting.addCastingRecipe(new ItemStack(blankPattern, 1, 1), new FluidStack(moltenAlubrassFluid, TConstruct.ingotLiquidValue), 80);
-        tableCasting.addCastingRecipe(new ItemStack(blankPattern, 1, 2), new FluidStack(moltenGoldFluid, TConstruct.ingotLiquidValue * 2), 80);
+        tableCasting.addCastingRecipe(new ItemStack(blankPattern, 1, 1), new FluidStack(moltenAlubrassFluid, TConstruct.ingotLiquidValue), 80, FluidRenderProperties.DEFAULT_TABLE);
+        tableCasting.addCastingRecipe(new ItemStack(blankPattern, 1, 2), new FluidStack(moltenGoldFluid, TConstruct.ingotLiquidValue * 2), 80, FluidRenderProperties.DEFAULT_TABLE);
 
         //Ingots
-        tableCasting.addCastingRecipe(new ItemStack(Item.ingotIron), new FluidStack(moltenIronFluid, TConstruct.ingotLiquidValue), ingotcast, 80); //Iron
-        tableCasting.addCastingRecipe(new ItemStack(Item.ingotGold), new FluidStack(moltenGoldFluid, TConstruct.ingotLiquidValue), ingotcast, 80); //gold
-        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 9), new FluidStack(moltenCopperFluid, TConstruct.ingotLiquidValue), ingotcast, 80); //copper
-        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 10), new FluidStack(moltenTinFluid, TConstruct.ingotLiquidValue), ingotcast, 80); //tin
-        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 11), new FluidStack(moltenAluminumFluid, TConstruct.ingotLiquidValue), ingotcast, 80); //aluminum
-        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 3), new FluidStack(moltenCobaltFluid, TConstruct.ingotLiquidValue), ingotcast, 80); //cobalt
-        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 4), new FluidStack(moltenArditeFluid, TConstruct.ingotLiquidValue), ingotcast, 80); //ardite
-        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 13), new FluidStack(moltenBronzeFluid, TConstruct.ingotLiquidValue), ingotcast, 80); //bronze
-        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 14), new FluidStack(moltenAlubrassFluid, TConstruct.ingotLiquidValue), ingotcast, 80); //albrass
-        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 5), new FluidStack(moltenManyullynFluid, TConstruct.ingotLiquidValue), ingotcast, 80); //manyullyn
-        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 15), new FluidStack(moltenAlumiteFluid, TConstruct.ingotLiquidValue), ingotcast, 80); //alumite
-        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 18), new FluidStack(moltenObsidianFluid, TConstruct.ingotLiquidValue), ingotcast, 80); //obsidian
-        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 16), new FluidStack(moltenSteelFluid, TConstruct.ingotLiquidValue), ingotcast, 80); //steel
+        tableCasting.addCastingRecipe(new ItemStack(Item.ingotIron), new FluidStack(moltenIronFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE); //Iron
+        tableCasting.addCastingRecipe(new ItemStack(Item.ingotGold), new FluidStack(moltenGoldFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE); //gold
+        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 9), new FluidStack(moltenCopperFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE); //copper
+        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 10), new FluidStack(moltenTinFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE); //tin
+        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 11), new FluidStack(moltenAluminumFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE); //aluminum
+        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 3), new FluidStack(moltenCobaltFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE); //cobalt
+        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 4), new FluidStack(moltenArditeFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE); //ardite
+        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 13), new FluidStack(moltenBronzeFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE); //bronze
+        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 14), new FluidStack(moltenAlubrassFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE); //albrass
+        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 5), new FluidStack(moltenManyullynFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE); //manyullyn
+        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 15), new FluidStack(moltenAlumiteFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE); //alumite
+        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 18), new FluidStack(moltenObsidianFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE); //obsidian
+        tableCasting.addCastingRecipe(new ItemStack(materials, 1, 16), new FluidStack(moltenSteelFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE); //steel
 
         //Buckets
         ItemStack bucket = new ItemStack(Item.bucketEmpty);
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 0), new FluidStack(moltenIronFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //Iron
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 1), new FluidStack(moltenGoldFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //gold
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 2), new FluidStack(moltenCopperFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //copper
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 3), new FluidStack(moltenTinFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //tin
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 4), new FluidStack(moltenAluminumFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //aluminum
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 5), new FluidStack(moltenCobaltFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //cobalt
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 6), new FluidStack(moltenArditeFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //ardite
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 7), new FluidStack(moltenBronzeFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //bronze
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 8), new FluidStack(moltenAlubrassFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //alubrass
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 9), new FluidStack(moltenManyullynFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //manyullyn
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 10), new FluidStack(moltenAlumiteFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //alumite
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 11), new FluidStack(moltenObsidianFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10);// obsidian
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 12), new FluidStack(moltenSteelFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //steel
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 13), new FluidStack(moltenGlassFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //glass
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 14), new FluidStack(moltenStoneFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //seared stone
-        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 15), new FluidStack(moltenEmeraldFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10); //emerald
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 0), new FluidStack(moltenIronFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //Iron
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 1), new FluidStack(moltenGoldFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //gold
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 2), new FluidStack(moltenCopperFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //copper
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 3), new FluidStack(moltenTinFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //tin
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 4), new FluidStack(moltenAluminumFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //aluminum
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 5), new FluidStack(moltenCobaltFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //cobalt
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 6), new FluidStack(moltenArditeFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //ardite
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 7), new FluidStack(moltenBronzeFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //bronze
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 8), new FluidStack(moltenAlubrassFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //alubrass
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 9), new FluidStack(moltenManyullynFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //manyullyn
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 10), new FluidStack(moltenAlumiteFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //alumite
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 11), new FluidStack(moltenObsidianFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE);// obsidian
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 12), new FluidStack(moltenSteelFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //steel
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 13), new FluidStack(moltenGlassFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //glass
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 14), new FluidStack(moltenStoneFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //seared stone
+        tableCasting.addCastingRecipe(new ItemStack(buckets, 1, 15), new FluidStack(moltenEmeraldFluid, FluidContainerRegistry.BUCKET_VOLUME), bucket, true, 10, FluidRenderProperties.DEFAULT_TABLE); //emerald
 
-        tableCasting.addCastingRecipe(new ItemStack(glassPane), new FluidStack(moltenGlassFluid, 250), null, 80);
+        tableCasting.addCastingRecipe(new ItemStack(glassPane), new FluidStack(moltenGlassFluid, 250), null, 80, FluidRenderProperties.DEFAULT_TABLE);
 
         liquids = new FluidStack[] { new FluidStack(moltenIronFluid, 1), new FluidStack(moltenCopperFluid, 1), new FluidStack(moltenCobaltFluid, 1), new FluidStack(moltenArditeFluid, 1),
                 new FluidStack(moltenManyullynFluid, 1), new FluidStack(moltenBronzeFluid, 1), new FluidStack(moltenAlumiteFluid, 1), new FluidStack(moltenObsidianFluid, 1),
@@ -1126,14 +1126,14 @@ public class TContent implements IFuelHandler
             {
                 ItemStack cast = new ItemStack(metalPattern, 1, iter + 1);
 
-                tableCasting.addCastingRecipe(cast, new FluidStack(moltenAlubrassFluid, TConstruct.ingotLiquidValue), new ItemStack(patternOutputs[iter], 1, Short.MAX_VALUE), false, 50);
-                tableCasting.addCastingRecipe(cast, new FluidStack(moltenGoldFluid, TConstruct.ingotLiquidValue * 2), new ItemStack(patternOutputs[iter], 1, Short.MAX_VALUE), false, 50);
+                tableCasting.addCastingRecipe(cast, new FluidStack(moltenAlubrassFluid, TConstruct.ingotLiquidValue), new ItemStack(patternOutputs[iter], 1, Short.MAX_VALUE), false, 50, FluidRenderProperties.DEFAULT_TABLE);
+                tableCasting.addCastingRecipe(cast, new FluidStack(moltenGoldFluid, TConstruct.ingotLiquidValue * 2), new ItemStack(patternOutputs[iter], 1, Short.MAX_VALUE), false, 50, FluidRenderProperties.DEFAULT_TABLE);
 
                 for (int iterTwo = 0; iterTwo < liquids.length; iterTwo++)
                 {
                     ItemStack metalCast = new ItemStack(patternOutputs[iter], 1, liquidDamage[iterTwo]);
                     tableCasting.addCastingRecipe(metalCast, new FluidStack(liquids[iterTwo].getFluid(), ((IPattern) metalPattern).getPatternCost(metalCast) * TConstruct.ingotLiquidValue / 2), cast,
-                            50);
+50, FluidRenderProperties.DEFAULT_TABLE);
                 }
             }
         }
@@ -1142,32 +1142,32 @@ public class TContent implements IFuelHandler
         for (int i = 0; i < ingotShapes.length; i++)
         {
             TConstruct.tableCasting.addCastingRecipe(new ItemStack(TContent.metalPattern, 1, 0), new FluidStack(moltenAlubrassFluid, TConstruct.ingotLiquidValue), ingotShapes[i],
-                    false, 50);
+                    false, 50, FluidRenderProperties.DEFAULT_TABLE);
             TConstruct.tableCasting.addCastingRecipe(new ItemStack(TContent.metalPattern, 1, 0), new FluidStack(moltenGoldFluid, TConstruct.ingotLiquidValue * 2),
-                    ingotShapes[i], false, 50);
+                    ingotShapes[i], false, 50, FluidRenderProperties.DEFAULT_TABLE);
         }
 
         ItemStack fullguardCast = new ItemStack(metalPattern, 1, 22);
-        tableCasting.addCastingRecipe(fullguardCast, new FluidStack(moltenAlubrassFluid, TConstruct.ingotLiquidValue), new ItemStack(fullGuard, 1, Short.MAX_VALUE), false, 50);
-        tableCasting.addCastingRecipe(fullguardCast, new FluidStack(moltenGoldFluid, TConstruct.ingotLiquidValue * 2), new ItemStack(fullGuard, 1, Short.MAX_VALUE), false, 50);
+        tableCasting.addCastingRecipe(fullguardCast, new FluidStack(moltenAlubrassFluid, TConstruct.ingotLiquidValue), new ItemStack(fullGuard, 1, Short.MAX_VALUE), false, 50, FluidRenderProperties.DEFAULT_TABLE);
+        tableCasting.addCastingRecipe(fullguardCast, new FluidStack(moltenGoldFluid, TConstruct.ingotLiquidValue * 2), new ItemStack(fullGuard, 1, Short.MAX_VALUE), false, 50, FluidRenderProperties.DEFAULT_TABLE);
         LiquidCasting basinCasting = TConstructRegistry.getBasinCasting();
-        basinCasting.addCastingRecipe(new ItemStack(Block.blockIron), new FluidStack(moltenIronFluid, TConstruct.ingotLiquidValue * 9), null, true, 100); //Iron
-        basinCasting.addCastingRecipe(new ItemStack(Block.blockGold), new FluidStack(moltenGoldFluid, TConstruct.ingotLiquidValue * 9), null, true, 100); //gold
-        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 3), new FluidStack(moltenCopperFluid, TConstruct.ingotLiquidValue * 9), null, true, 100); //copper
-        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 5), new FluidStack(moltenTinFluid, TConstruct.ingotLiquidValue * 9), null, true, 100); //tin
-        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 6), new FluidStack(moltenAluminumFluid, TConstruct.ingotLiquidValue * 9), null, true, 100); //aluminum
-        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 0), new FluidStack(moltenCobaltFluid, TConstruct.ingotLiquidValue * 9), null, true, 100); //cobalt
-        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 1), new FluidStack(moltenArditeFluid, TConstruct.ingotLiquidValue * 9), null, true, 100); //ardite
-        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 4), new FluidStack(moltenBronzeFluid, TConstruct.ingotLiquidValue * 9), null, true, 100); //bronze
-        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 7), new FluidStack(moltenAlubrassFluid, TConstruct.ingotLiquidValue * 9), null, true, 100); //albrass
-        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 2), new FluidStack(moltenManyullynFluid, TConstruct.ingotLiquidValue * 9), null, true, 100); //manyullyn
-        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 8), new FluidStack(moltenAlumiteFluid, TConstruct.ingotLiquidValue * 9), null, true, 100); //alumite
-        basinCasting.addCastingRecipe(new ItemStack(Block.obsidian), new FluidStack(moltenObsidianFluid, TConstruct.ingotLiquidValue * 2), null, true, 100);// obsidian
-        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 9), new FluidStack(moltenSteelFluid, TConstruct.ingotLiquidValue * 9), null, true, 100); //steel
-        basinCasting.addCastingRecipe(new ItemStack(glass, 1, 0), new FluidStack(moltenGlassFluid, FluidContainerRegistry.BUCKET_VOLUME), null, true, 100); //glass
-        basinCasting.addCastingRecipe(new ItemStack(smeltery, 1, 4), new FluidStack(moltenStoneFluid, TConstruct.ingotLiquidValue), null, true, 100); //seared stone
+        basinCasting.addCastingRecipe(new ItemStack(Block.blockIron), new FluidStack(moltenIronFluid, TConstruct.ingotLiquidValue * 9), null, true, 100, FluidRenderProperties.DEFAULT_BASIN); //Iron
+        basinCasting.addCastingRecipe(new ItemStack(Block.blockGold), new FluidStack(moltenGoldFluid, TConstruct.ingotLiquidValue * 9), null, true, 100, FluidRenderProperties.DEFAULT_BASIN); //gold
+        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 3), new FluidStack(moltenCopperFluid, TConstruct.ingotLiquidValue * 9), null, true, 100, FluidRenderProperties.DEFAULT_BASIN); //copper
+        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 5), new FluidStack(moltenTinFluid, TConstruct.ingotLiquidValue * 9), null, true, 100, FluidRenderProperties.DEFAULT_BASIN); //tin
+        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 6), new FluidStack(moltenAluminumFluid, TConstruct.ingotLiquidValue * 9), null, true, 100, FluidRenderProperties.DEFAULT_BASIN); //aluminum
+        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 0), new FluidStack(moltenCobaltFluid, TConstruct.ingotLiquidValue * 9), null, true, 100, FluidRenderProperties.DEFAULT_BASIN); //cobalt
+        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 1), new FluidStack(moltenArditeFluid, TConstruct.ingotLiquidValue * 9), null, true, 100, FluidRenderProperties.DEFAULT_BASIN); //ardite
+        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 4), new FluidStack(moltenBronzeFluid, TConstruct.ingotLiquidValue * 9), null, true, 100, FluidRenderProperties.DEFAULT_BASIN); //bronze
+        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 7), new FluidStack(moltenAlubrassFluid, TConstruct.ingotLiquidValue * 9), null, true, 100, FluidRenderProperties.DEFAULT_BASIN); //albrass
+        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 2), new FluidStack(moltenManyullynFluid, TConstruct.ingotLiquidValue * 9), null, true, 100, FluidRenderProperties.DEFAULT_BASIN); //manyullyn
+        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 8), new FluidStack(moltenAlumiteFluid, TConstruct.ingotLiquidValue * 9), null, true, 100, FluidRenderProperties.DEFAULT_BASIN); //alumite
+        basinCasting.addCastingRecipe(new ItemStack(Block.obsidian), new FluidStack(moltenObsidianFluid, TConstruct.ingotLiquidValue * 2), null, true, 100, FluidRenderProperties.DEFAULT_BASIN);// obsidian
+        basinCasting.addCastingRecipe(new ItemStack(metalBlock, 1, 9), new FluidStack(moltenSteelFluid, TConstruct.ingotLiquidValue * 9), null, true, 100, FluidRenderProperties.DEFAULT_BASIN); //steel
+        basinCasting.addCastingRecipe(new ItemStack(glass, 1, 0), new FluidStack(moltenGlassFluid, FluidContainerRegistry.BUCKET_VOLUME), null, true, 100, FluidRenderProperties.DEFAULT_BASIN); //glass
+        basinCasting.addCastingRecipe(new ItemStack(smeltery, 1, 4), new FluidStack(moltenStoneFluid, TConstruct.ingotLiquidValue), null, true, 100, FluidRenderProperties.DEFAULT_BASIN); //seared stone
 
-        basinCasting.addCastingRecipe(new ItemStack(speedBlock, 1, 0), new FluidStack(moltenTinFluid, TConstruct.ingotLiquidValue / 9), new ItemStack(Block.gravel), true, 100); //brownstone
+        basinCasting.addCastingRecipe(new ItemStack(speedBlock, 1, 0), new FluidStack(moltenTinFluid, TConstruct.ingotLiquidValue / 9), new ItemStack(Block.gravel), true, 100, FluidRenderProperties.DEFAULT_BASIN); //brownstone
         
         //TODO Test
         basinCasting.addCastingRecipe(new ItemStack(armorTest), new FluidStack(moltenIronFluid, TConstruct.ingotLiquidValue * 24), new ItemStack(armorPattern, 1, 0), false, 100, new FluidRenderProperties(0.5F, 0.575F, 0.15F, 0.85F, 0.15F, 0.85F));
@@ -1901,74 +1901,74 @@ public class TContent implements IFuelHandler
         if (ores.size() > 0)
         {
             ItemStack ingot = ores.get(0);
-            tableCasting.addCastingRecipe(ingot, new FluidStack(moltenNickelFluid, TConstruct.ingotLiquidValue), ingotcast, 80);
+            tableCasting.addCastingRecipe(ingot, new FluidStack(moltenNickelFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE);
         }
         ores = OreDictionary.getOres("ingotLead");
         if (ores.size() > 0)
         {
             ItemStack ingot = ores.get(0);
-            tableCasting.addCastingRecipe(ingot, new FluidStack(moltenLeadFluid, TConstruct.ingotLiquidValue), ingotcast, 80);
+            tableCasting.addCastingRecipe(ingot, new FluidStack(moltenLeadFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE);
         }
         ores = OreDictionary.getOres("ingotSilver");
         if (ores.size() > 0)
         {
             ItemStack ingot = ores.get(0);
-            tableCasting.addCastingRecipe(ingot, new FluidStack(moltenSilverFluid, TConstruct.ingotLiquidValue), ingotcast, 80);
+            tableCasting.addCastingRecipe(ingot, new FluidStack(moltenSilverFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE);
         }
         ores = OreDictionary.getOres("ingotPlatinum");
         if (ores.size() > 0)
         {
             ItemStack ingot = ores.get(0);
-            tableCasting.addCastingRecipe(ingot, new FluidStack(moltenShinyFluid, TConstruct.ingotLiquidValue), ingotcast, 80);
+            tableCasting.addCastingRecipe(ingot, new FluidStack(moltenShinyFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE);
         }
         ores = OreDictionary.getOres("ingotInvar");
         if (ores.size() > 0)
         {
             ItemStack ingot = ores.get(0);
-            tableCasting.addCastingRecipe(ingot, new FluidStack(moltenInvarFluid, TConstruct.ingotLiquidValue), ingotcast, 80);
+            tableCasting.addCastingRecipe(ingot, new FluidStack(moltenInvarFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE);
         }
         ores = OreDictionary.getOres("ingotElectrum");
         if (ores.size() > 0)
         {
             ItemStack ingot = ores.get(0);
-            tableCasting.addCastingRecipe(ingot, new FluidStack(moltenElectrumFluid, TConstruct.ingotLiquidValue), ingotcast, 80);
+            tableCasting.addCastingRecipe(ingot, new FluidStack(moltenElectrumFluid, TConstruct.ingotLiquidValue), ingotcast, 80, FluidRenderProperties.DEFAULT_TABLE);
         }
 
         ores = OreDictionary.getOres("blockNickel");
         if (ores.size() > 0)
         {
             ItemStack ingot = ores.get(0);
-            basinCasting.addCastingRecipe(ingot, new FluidStack(moltenNickelFluid, TConstruct.ingotLiquidValue * 9), null, 100);
+            basinCasting.addCastingRecipe(ingot, new FluidStack(moltenNickelFluid, TConstruct.ingotLiquidValue * 9), null, 100, FluidRenderProperties.DEFAULT_BASIN);
         }
         ores = OreDictionary.getOres("blockLead");
         if (ores.size() > 0)
         {
             ItemStack ingot = ores.get(0);
-            basinCasting.addCastingRecipe(ingot, new FluidStack(moltenLeadFluid, TConstruct.ingotLiquidValue * 9), null, 100);
+            basinCasting.addCastingRecipe(ingot, new FluidStack(moltenLeadFluid, TConstruct.ingotLiquidValue * 9), null, 100, FluidRenderProperties.DEFAULT_BASIN);
         }
         ores = OreDictionary.getOres("blockSilver");
         if (ores.size() > 0)
         {
             ItemStack ingot = ores.get(0);
-            basinCasting.addCastingRecipe(ingot, new FluidStack(moltenSilverFluid, TConstruct.ingotLiquidValue * 9), null, 100);
+            basinCasting.addCastingRecipe(ingot, new FluidStack(moltenSilverFluid, TConstruct.ingotLiquidValue * 9), null, 100, FluidRenderProperties.DEFAULT_BASIN);
         }
         ores = OreDictionary.getOres("blockPlatinum");
         if (ores.size() > 0)
         {
             ItemStack ingot = ores.get(0);
-            basinCasting.addCastingRecipe(ingot, new FluidStack(moltenShinyFluid, TConstruct.ingotLiquidValue * 9), null, 100);
+            basinCasting.addCastingRecipe(ingot, new FluidStack(moltenShinyFluid, TConstruct.ingotLiquidValue * 9), null, 100, FluidRenderProperties.DEFAULT_BASIN);
         }
         ores = OreDictionary.getOres("blockInvar");
         if (ores.size() > 0)
         {
             ItemStack ingot = ores.get(0);
-            basinCasting.addCastingRecipe(ingot, new FluidStack(moltenInvarFluid, TConstruct.ingotLiquidValue * 9), null, 100);
+            basinCasting.addCastingRecipe(ingot, new FluidStack(moltenInvarFluid, TConstruct.ingotLiquidValue * 9), null, 100, FluidRenderProperties.DEFAULT_BASIN);
         }
         ores = OreDictionary.getOres("blockElectrum");
         if (ores.size() > 0)
         {
             ItemStack ingot = ores.get(0);
-            basinCasting.addCastingRecipe(ingot, new FluidStack(moltenElectrumFluid, TConstruct.ingotLiquidValue * 9), null, 100);
+            basinCasting.addCastingRecipe(ingot, new FluidStack(moltenElectrumFluid, TConstruct.ingotLiquidValue * 9), null, 100, FluidRenderProperties.DEFAULT_BASIN);
         }
     }
 

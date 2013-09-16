@@ -2,6 +2,10 @@ package tconstruct.library.client;
 
 public class FluidRenderProperties {
 
+	//Constant defaults
+	public static final FluidRenderProperties DEFAULT_TABLE = new FluidRenderProperties(Applications.TABLE);
+	public static final FluidRenderProperties DEFAULT_BASIN = new FluidRenderProperties(Applications.BASIN);
+	
 	public float minHeight, maxHeight, minX, maxX, minZ, maxZ;
 	
 	public FluidRenderProperties(float minHeight, float maxHeight, float minX, float maxX, float minZ, float maxZ){
