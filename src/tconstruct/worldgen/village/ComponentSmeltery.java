@@ -16,6 +16,8 @@ public class ComponentSmeltery extends ComponentVillage
 {
     private int averageGroundLevel = -1;
 
+    public ComponentSmeltery() {}
+    
     public ComponentSmeltery(ComponentVillageStartPiece par1ComponentVillageStartPiece, int par2, Random par3Random, StructureBoundingBox par4StructureBoundingBox, int par5)
     {
         super(par1ComponentVillageStartPiece, par2);
