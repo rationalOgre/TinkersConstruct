@@ -255,7 +255,7 @@ public class TContent implements IFuelHandler
     public static ChestGenHooks tinkerHousePatterns;
 
     //Temporary Items, going to be enabled when testing is required
-    public static Item armorTest = new ArmorStandard(2445, 4, EnumArmorPart.HELMET).setCreativeTab(CreativeTabs.tabAllSearch);
+//    public static Item armorTest = new ArmorStandard(2445, 4, EnumArmorPart.HELMET).setCreativeTab(CreativeTabs.tabAllSearch);
     
     public TContent()
     {
@@ -1170,7 +1170,7 @@ public class TContent implements IFuelHandler
         basinCasting.addCastingRecipe(new ItemStack(speedBlock, 1, 0), new FluidStack(moltenTinFluid, TConstruct.ingotLiquidValue / 9), new ItemStack(Block.gravel), true, 100, FluidRenderProperties.DEFAULT_BASIN); //brownstone
         
         //TODO Test
-        basinCasting.addCastingRecipe(new ItemStack(armorTest), new FluidStack(moltenIronFluid, TConstruct.ingotLiquidValue * 24), new ItemStack(armorPattern, 1, 0), false, 100, new FluidRenderProperties(0.5F, 0.575F, 0.15F, 0.85F, 0.15F, 0.85F));
+//        basinCasting.addCastingRecipe(new ItemStack(armorTest), new FluidStack(moltenIronFluid, TConstruct.ingotLiquidValue * 24), new ItemStack(armorPattern, 1, 0), false, 100, new FluidRenderProperties(0.5F, 0.575F, 0.15F, 0.85F, 0.15F, 0.85F));
         
         //Ore
         Smeltery.addMelting(Block.oreIron, 0, 600, new FluidStack(moltenIronFluid, TConstruct.ingotLiquidValue * 2));
