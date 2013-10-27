@@ -180,6 +180,8 @@ public class PHConstruct
         airTank = config.getBlock("Air Tank", 3246).getInt(3246);
         castingChannel = config.getBlock("Casting Channel", 3249).getInt(3249);
         woodenRail = config.getBlock("Wooden Rail", 3250).getInt(3250);
+        signalBus = config.getBlock("Signal Bus", 3247).getInt(3247);
+        signalTerminal = config.getBlock("Signal Terminal", 3248).getInt(3248);
 
         manual = config.getItem("Patterns and Misc", "Tinker's Manual", 14018).getInt(14018);
         blankPattern = config.getItem("Patterns and Misc", "Blank Patterns", 14019).getInt(14019);
@@ -264,6 +266,8 @@ public class PHConstruct
         essenceCrystal = config.getItem("Patterns and Misc", "Essence Crystal", 14114).getInt(14114);
         jerky = config.getItem("Patterns and Misc", "Jerky", 14115).getInt(14115);
 
+        spoolWire = config.getItem("Logic", "SpoolWire", 14120).getInt(14120);
+        
         boolean ic2 = true;
         boolean xycraft = true;
         try
@@ -411,6 +415,9 @@ public class PHConstruct
     public static int dryingRack;
 
     public static int woodenRail;
+    
+    public static int signalBus;
+    public static int signalTerminal;
 
     //Crops
     public static int oreBerry;
@@ -578,6 +585,8 @@ public class PHConstruct
     public static int knapsack;
 
     public static int heartCanister;
+    
+    public static int spoolWire;
 
     //Ore values
     public static boolean generateCopper;

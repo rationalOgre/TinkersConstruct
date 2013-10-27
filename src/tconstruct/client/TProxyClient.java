@@ -26,6 +26,7 @@ import net.minecraftforge.fluids.RenderBlockFluid;
 import org.lwjgl.opengl.GL11;
 import org.w3c.dom.Document;
 import tconstruct.TConstruct;
+import tconstruct.blocks.SignalTerminal;
 import tconstruct.blocks.logic.*;
 import tconstruct.client.armor.RenderArmorCast;
 import tconstruct.client.block.*;
@@ -42,6 +43,7 @@ import tconstruct.inventory.ContainerLandmine;
 import tconstruct.library.TConstructRegistry;
 import tconstruct.library.client.*;
 import tconstruct.library.crafting.ToolBuilder;
+import tconstruct.library.multiblock.MultiblockServerTickHandler;
 import tconstruct.library.tools.ToolCore;
 import tconstruct.util.player.*;
 
@@ -214,6 +216,8 @@ public class TProxyClient extends TProxyCommon
         RenderingRegistry.registerBlockHandler(new BlockRenderCastingChannel());
         RenderingRegistry.registerBlockHandler(new SlimeChannelRender());
         RenderingRegistry.registerBlockHandler(new SlimePadRender());
+        RenderingRegistry.registerBlockHandler(new SignalBusRender());
+        RenderingRegistry.registerBlockHandler(new SignalTerminalRender());
 
         // Special Renderers
         ClientRegistry.bindTileEntitySpecialRenderer(CastingTableLogic.class, new CastingTableSpecialRenderer());

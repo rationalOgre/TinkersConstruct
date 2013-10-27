@@ -276,6 +276,12 @@ public class TContent implements IFuelHandler
     public static Item leggingsWood;
     public static Item bootsWood;
     public static EnumArmorMaterial materialWood;
+    
+    //Signal & Logic
+    public static Block signalBus;
+    public static Block signalTerminal;
+    
+    public static Item spoolWire;
 
     //Temporary items
     //public static Item armorTest = new ArmorStandard(2445, 4, EnumArmorPart.HELMET).setCreativeTab(CreativeTabs.tabAllSearch);
@@ -799,6 +805,16 @@ public class TContent implements IFuelHandler
         //Rail
         woodenRail = new WoodRail(PHConstruct.woodenRail).setStepSound(Block.soundWoodFootstep).setCreativeTab(TConstructRegistry.blockTab).setUnlocalizedName("rail.wood");
         GameRegistry.registerBlock(woodenRail, "rail.wood");
+        
+        //Signal & Logic
+        signalBus = (new SignalBus(PHConstruct.signalBus)).setUnlocalizedName("SignalBus");
+        GameRegistry.registerBlock(signalBus, SignalBusItem.class, "SignalBus");
+        GameRegistry.registerTileEntity(SignalBusLogic.class, "SignalBus");
+        
+        signalTerminal = (new SignalTerminal(PHConstruct.signalTerminal)).setUnlocalizedName("SignalTerminal");
+        GameRegistry.registerBlock(signalTerminal, SignalTerminalItem.class, "SignalTerminal");
+        GameRegistry.registerTileEntity(SignalTerminalLogic.class, "SignalTerminal");
+
     }
 
     void registerItems ()
@@ -938,6 +954,8 @@ public class TContent implements IFuelHandler
         leggingsWood = new ArmorBasic(PHConstruct.woodPants, materialWood, 2, "wood").setUnlocalizedName("tconstruct.leggingsWood");
         bootsWood = new ArmorBasic(PHConstruct.woodBoots, materialWood, 3, "wood").setUnlocalizedName("tconstruct.bootsWood");
 
+        spoolWire = new SpoolOfWire(PHConstruct.spoolWire).setUnlocalizedName("spoolWire");
+        
         //        essenceCrystal = new EssenceCrystal(PHConstruct.essenceCrystal).setUnlocalizedName("tconstruct.crystal.essence");
 
         String[] materialStrings = { "paperStack", "greenSlimeCrystal", "searedBrick", "ingotCobalt", "ingotArdite", "ingotManyullyn", "mossBall", "lavaCrystal", "necroticBone", "ingotCopper",
@@ -963,7 +981,9 @@ public class TContent implements IFuelHandler
         TConstructRegistry.addItemStackToDirectory("canisterEmpty", new ItemStack(heartCanister, 1, 0));
         TConstructRegistry.addItemStackToDirectory("miniRedHeart", new ItemStack(heartCanister, 1, 1));
         TConstructRegistry.addItemStackToDirectory("canisterRedHeart", new ItemStack(heartCanister, 1, 2));
-
+        
+        TConstructRegistry.addItemStackToDirectory("spoolWire", new ItemStack(spoolWire, 1, 0));
+        
         //Vanilla stack sizes
         Item.doorWood.setMaxStackSize(16);
         Item.doorIron.setMaxStackSize(16);
