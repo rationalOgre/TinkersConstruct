@@ -14,6 +14,7 @@ import tconstruct.client.event.EventCloakRender;
 import tconstruct.common.*;
 import tconstruct.library.TConstructRegistry;
 import tconstruct.library.crafting.*;
+import tconstruct.library.multiblock.MultiblockEventHandler;
 import tconstruct.library.util.TabTools;
 import tconstruct.util.*;
 import tconstruct.util.config.*;
@@ -104,6 +105,8 @@ public class TConstruct
         proxy.addNames();
         proxy.readManuals();
         proxy.registerKeys();
+        
+        MinecraftForge.EVENT_BUS.register(new MultiblockEventHandler());
 
         GameRegistry.registerWorldGenerator(new TBaseWorldGenerator());
         MinecraftForge.TERRAIN_GEN_BUS.register(new TerrainGenEventHandler());
