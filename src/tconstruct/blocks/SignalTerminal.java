@@ -104,13 +104,29 @@ public class SignalTerminal extends Block implements ITileEntityProvider {
     @Override
 	public int onBlockPlaced(World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int meta) {
 		TileEntity te = world.getBlockTileEntity(x, y, z);
+		
+		int tside = side;
+		switch (side)
+		{
+		case 0: // DOWN
+		case 1: // UP
+		case 4: // EAST
+		case 5: // WEST
+		    tside = ForgeDirection.OPPOSITES[side];
+			break;
+		default:
+			tside = side;
+			break;
+		}
+		
 		if (te == null || !(te instanceof SignalTerminalLogic)) {
 			// New Terminal block being placed; set meta as side for TE to use later
-			return side;
+			return tside;
 		}
-		((SignalTerminalLogic)te).addPendingSide(side);
 		
-		return meta;
+		((SignalTerminalLogic)te).addPendingSide(tside);
+		
+		return tside;
 	}
 
 	/**
@@ -123,8 +139,8 @@ public class SignalTerminal extends Block implements ITileEntityProvider {
                (dir == ForgeDirection.SOUTH && world.isBlockSolidOnSide(x, y, z - 1, ForgeDirection.SOUTH)) ||
                (dir == ForgeDirection.WEST  && world.isBlockSolidOnSide(x + 1, y, z, ForgeDirection.WEST )) ||
                (dir == ForgeDirection.EAST  && world.isBlockSolidOnSide(x - 1, y, z, ForgeDirection.EAST )) ||
-               (dir == ForgeDirection.UP    && world.isBlockSolidOnSide(x, y + 1, z, ForgeDirection.UP   )) ||
-               (dir == ForgeDirection.DOWN  && world.isBlockSolidOnSide(x, y - 1, z, ForgeDirection.DOWN ));
+               (dir == ForgeDirection.UP    && world.isBlockSolidOnSide(x, y - 1, z, ForgeDirection.UP   )) ||
+               (dir == ForgeDirection.DOWN  && world.isBlockSolidOnSide(x, y + 1, z, ForgeDirection.DOWN ));
     }
 
     /**
@@ -272,7 +288,7 @@ public class SignalTerminal extends Block implements ITileEntityProvider {
 		
         int meta = world.getBlockMetadata(x, y, z);
         boolean flag = world.isBlockIndirectlyGettingPowered(x, y, z);
-        boolean flag1 = (meta & 1) == 1;
+        boolean flag1 = (meta != 0);
 
         SignalTerminalLogic logic = (SignalTerminalLogic)world.getBlockTileEntity(x, y, z);
         
@@ -283,8 +299,14 @@ public class SignalTerminal extends Block implements ITileEntityProvider {
 	@Override
 	public boolean onBlockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9) {
 		int meta = par1World.getBlockMetadata(par2, par3, par4);
+		TileEntity te = par1World.getBlockTileEntity(par2, par3, par4);
+		if (te instanceof SignalTerminalLogic) {
+			TConstruct.logger.info(((SignalTerminalLogic)te).debugString());
+		}
 		
 		TConstruct.logger.info("meta: " + meta);
+		
+		this.setBlockBoundsBasedOnState(par1World, par2, par3, par4);
 		
 		return false;
 	}

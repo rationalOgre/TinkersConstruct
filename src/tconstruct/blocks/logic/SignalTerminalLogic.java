@@ -95,7 +95,7 @@ public class SignalTerminalLogic extends TileEntity {
 		if (te instanceof SignalBusLogic) {
 			MultiblockMasterBaseLogic master = ((SignalBusLogic)te).getMultiblockMaster();
 			if (master instanceof SignalBusMasterLogic) {
-				((SignalBusMasterLogic)master).updateSignal(new CoordTuple(xCoord, yCoord, zCoord), signalSetting, signalStrength);
+				((SignalBusMasterLogic)master).updateSignal(signalBus, signalSetting, signalStrength);
 			}
 		}
 		
@@ -121,7 +121,7 @@ public class SignalTerminalLogic extends TileEntity {
 		int meta = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
 		
 		if (signals[(byte)signalSetting] > 0) {
-			worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, signalStrength, 1);
+			worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, signals[(byte)signalSetting], 1);
 		}
 		else {
 			worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, 0, 1);
@@ -136,8 +136,23 @@ public class SignalTerminalLogic extends TileEntity {
 	}
 	
 	public int isProvidingStrongPower(int meta, int side) {
-		if (side >= 0 && side < 6) {
-			if (connectedSides[side]) { return meta; }
+		int tside = side;
+		
+		switch (side) {
+		case 0:
+			tside = 1;
+		case 1:
+			tside = 0;
+		case 4:
+			tside = 5;
+		case 5:
+			tside = 4;
+		default:
+			tside = side;
+		}
+		
+		if (side >= 0 && tside < 6) {
+			if (connectedSides[tside]) { return meta; }
 		}
 		
 		return 0;
@@ -152,6 +167,8 @@ public class SignalTerminalLogic extends TileEntity {
 			int side = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
 			connectedSides[side] = true;
 			newTile = false;
+			
+			worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, 0, 1);
 		}
 		else {
 			if (pendingSide >= 0 && pendingSide < 6) {
@@ -163,6 +180,10 @@ public class SignalTerminalLogic extends TileEntity {
 
 	public boolean[] getConnectedSides() {
 		return connectedSides.clone();
+	}
+
+	public String debugString() {
+		return "Channel: " + signalSetting + "\n" + "Strength: " + signalStrength;
 	}
 	
 	
