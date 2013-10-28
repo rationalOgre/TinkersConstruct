@@ -72,6 +72,7 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
 
 
 	public boolean registerTerminal(World world, int x, int y, int z) {
+		if (worldObj.isRemote) { return false; }
     	if (world == worldObj && world.isRemote == worldObj.isRemote) {
     		if (worldObj.getBlockTileEntity(x, y, z) instanceof SignalTerminalLogic) {
     			terminals.add(new CoordTuple(x, y, z));
@@ -84,10 +85,12 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
     }
     
     public boolean isRegisteredTerminal(World world, int x, int y, int z) {
+    	if (worldObj.isRemote) { return false; }
     	return terminals.contains(new CoordTuple(x, y, z));
     }
     
     public boolean unregisterTerminal(World world, int x, int y, int z) {
+    	if (worldObj.isRemote) { return false; }
     	return terminals.remove(new CoordTuple(x, y, z));
     }
     

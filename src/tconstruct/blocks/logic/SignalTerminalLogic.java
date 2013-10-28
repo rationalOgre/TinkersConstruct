@@ -1,11 +1,16 @@
 package tconstruct.blocks.logic;
 
 import tconstruct.blocks.component.SignalBusMasterLogic;
+import tconstruct.common.TContent;
 import tconstruct.library.multiblock.MultiblockMasterBaseLogic;
 import tconstruct.library.util.CoordTuple;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.INetworkManager;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 
 public class SignalTerminalLogic extends TileEntity {
 
@@ -16,6 +21,8 @@ public class SignalTerminalLogic extends TileEntity {
 	private byte signalSetting = 0;
 	private byte signalStrength = 0;
 	private boolean newTile = true;
+	private byte cachedSignal = 0;
+	private boolean isRegistered = false;
 	
 	public SignalTerminalLogic() {
 		super();
@@ -31,6 +38,27 @@ public class SignalTerminalLogic extends TileEntity {
 		return signalStrength;
 	}
 	
+	private void tryRegister() {
+		boolean wasRegistered = isRegistered;
+		if (worldObj == null || !(worldObj instanceof World)) { return; }
+		if (signalBus == null || !(signalBus instanceof CoordTuple)) { return; }
+		
+		TileEntity te = worldObj.getBlockTileEntity(signalBus.x, signalBus.y, signalBus.z);
+		if (te == null || !(te instanceof SignalBusLogic)) { return; }
+		
+		isRegistered = ((SignalBusLogic)te).registerTerminal(worldObj, xCoord, yCoord, zCoord);
+		
+		if (isRegistered != wasRegistered) {
+			if (isRegistered) {
+				doUpdate = true;
+			}
+			else {
+				signalBus = null;
+				doUpdate = true;
+			}
+		}
+	}
+	
 	@Override
 	public void readFromNBT(NBTTagCompound data) {
 		super.readFromNBT(data);
@@ -40,7 +68,7 @@ public class SignalTerminalLogic extends TileEntity {
 		
 		byte tbyte = data.getByte("connectedSides");
 		for (int n = 0; n < 6; n++) {
-			if (((tbyte >> n) & 1) == 0) {
+			if (((tbyte >> n) & 1) == 1) {
 				connectedSides[n] = true;
 			}
 		}
@@ -51,7 +79,10 @@ public class SignalTerminalLogic extends TileEntity {
         
         signalBus = new CoordTuple(tX, tY, tZ);
         
+        if (!isRegistered) { tryRegister(); }
+        
         newTile = false;
+        doUpdate = true;
 	}
 
 	@Override
@@ -64,7 +95,7 @@ public class SignalTerminalLogic extends TileEntity {
 		byte tbyte = (byte)0;
 		for (int n = 0; n < 6; n++) {
 			if (connectedSides[n]) {
-				tbyte &= (1 << n);
+				tbyte = (byte)((int)tbyte | (1 << n));
 			}
 		}
 		data.setByte("connectedSides", tbyte);
@@ -89,6 +120,14 @@ public class SignalTerminalLogic extends TileEntity {
 		}
 		
 		if (!doUpdate) { return; }
+		
+		if (!isRegistered) { tryRegister(); }
+		
+		doUpdate = false;
+		
+		if (!worldObj.isRemote) {
+			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		}
 		if (signalBus == null) { return; }
 		if (worldObj.isRemote) { return; }
 		TileEntity te = worldObj.getBlockTileEntity(signalBus.x, signalBus.y, signalBus.z);
@@ -100,6 +139,8 @@ public class SignalTerminalLogic extends TileEntity {
 		}
 		
 		doUpdate = false;
+		
+		if (!isRegistered) { doUpdate = true; }
 		
 		return;
 	}
@@ -120,12 +161,32 @@ public class SignalTerminalLogic extends TileEntity {
 	public void receiveSignals(byte[] signals) {
 		int meta = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
 		
+		if (meta == 0 && signalStrength > 0) { return; }
+		
+		if (signals[(byte)signalSetting] == cachedSignal) {
+			return;
+		}
+		
 		if (signals[(byte)signalSetting] > 0) {
 			worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, signals[(byte)signalSetting], 1);
 		}
 		else {
 			worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, 0, 1);
 		}
+		// Notify direct neighbors
+		worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, TContent.signalTerminal.blockID);
+		// Notify connected neighbors direction (strong power)
+		for (int n = 0; n < 6; n++) {
+			if (connectedSides[n]) {
+				ForgeDirection dir = ForgeDirection.VALID_DIRECTIONS[n];
+				if (dir == ForgeDirection.NORTH || dir == ForgeDirection.SOUTH) {
+					dir = dir.getOpposite();
+				}
+				worldObj.notifyBlocksOfNeighborChange(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ, TContent.signalTerminal.blockID);
+			}
+		}
+		
+		cachedSignal = signals[(byte)signalSetting];
 	}
 
 	public void setBusCoords(World world, int x, int y, int z) {
@@ -141,12 +202,22 @@ public class SignalTerminalLogic extends TileEntity {
 		switch (side) {
 		case 0:
 			tside = 1;
+			break;
 		case 1:
 			tside = 0;
+			break;
+		case 2:
+			tside = 2;
+			break;
+		case 3:
+			tside = 3;
+			break;
 		case 4:
 			tside = 5;
+			break;
 		case 5:
 			tside = 4;
+			break;
 		default:
 			tside = side;
 		}
@@ -168,13 +239,17 @@ public class SignalTerminalLogic extends TileEntity {
 			connectedSides[side] = true;
 			newTile = false;
 			
-			worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, 0, 1);
+			if (!worldObj.isRemote) { 
+				worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, 0, 1);
+			}
+			doUpdate = true;
 		}
 		else {
 			if (pendingSide >= 0 && pendingSide < 6) {
 				connectedSides[pendingSide] = true;
 			}
 			pendingSide = -1;
+			doUpdate = true;
 		}
 	}
 
@@ -183,8 +258,37 @@ public class SignalTerminalLogic extends TileEntity {
 	}
 
 	public String debugString() {
-		return "Channel: " + signalSetting + "\n" + "Strength: " + signalStrength;
+		String tstr = "";
+		
+		if (!worldObj.isRemote) {
+			byte tbyte = (byte)0;
+			for (int n = 0; n < 6; n++) {
+				if (connectedSides[n]) {
+					tbyte &= (1 << n);
+				}
+			}
+			tstr += "Sides: " + tbyte + "\n";
+		}
+		
+		return tstr + "Channel: " + signalSetting + "\n" + "Strength: " + signalStrength;
 	}
 	
-	
+
+    /* Packets */
+    @Override
+    public Packet getDescriptionPacket ()
+    {
+        NBTTagCompound tag = new NBTTagCompound();
+        writeToNBT(tag);
+        return new Packet132TileEntityData(xCoord, yCoord, zCoord, 1, tag);
+    }
+
+    @Override
+    public void onDataPacket (INetworkManager net, Packet132TileEntityData packet)
+    {
+        readFromNBT(packet.data);
+        onInventoryChanged();
+        worldObj.markBlockForRenderUpdate(xCoord, yCoord, zCoord);
+        this.doUpdate = true;
+    }
 }

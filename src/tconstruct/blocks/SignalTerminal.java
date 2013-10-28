@@ -98,7 +98,7 @@ public class SignalTerminal extends Block implements ITileEntityProvider {
      */
     public int tickRate(World par1World)
     {
-        return 2;
+        return 1;
     }
 
     @Override
@@ -253,7 +253,11 @@ public class SignalTerminal extends Block implements ITileEntityProvider {
      */
     public int isProvidingWeakPower(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5)
     {
-    	return par1IBlockAccess.getBlockMetadata(par2, par3, par4) & 15;
+    	//return 0;
+    	
+    	return this.isProvidingStrongPower(par1IBlockAccess, par2, par3, par4, par5);
+    	
+    	//return par1IBlockAccess.getBlockMetadata(par2, par3, par4) & 15;
     }
 
     /**
@@ -306,7 +310,7 @@ public class SignalTerminal extends Block implements ITileEntityProvider {
 		
 		TConstruct.logger.info("meta: " + meta);
 		
-		this.setBlockBoundsBasedOnState(par1World, par2, par3, par4);
+		//this.setBlockBoundsBasedOnState(par1World, par2, par3, par4);
 		
 		return false;
 	}
@@ -318,5 +322,18 @@ public class SignalTerminal extends Block implements ITileEntityProvider {
 			((SignalTerminalLogic)te).connectPending();
 		}
 	}
+
+	@Override
+	public boolean removeBlockByPlayer(World world, EntityPlayer player, int x, int y, int z) {
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if (te instanceof SignalTerminalLogic) {
+			((SignalTerminalLogic)te).receiveSignals(new byte[] { (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0 });
+		}
+				
+		return super.removeBlockByPlayer(world, player, x, y, z);
+	}
+	
+	
+		
 }
 

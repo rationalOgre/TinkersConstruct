@@ -159,7 +159,7 @@ public abstract class MultiblockMasterBaseLogic {
 	
 	public void merge(MultiblockMasterBaseLogic other) {
 		if (this.referenceCoord.compareTo(other.referenceCoord) >= 0) {
-			//throw new IllegalArgumentException("You're doing it wrong");
+			throw new IllegalArgumentException("You're doing it wrong");
 		}
 		
 		TileEntity te;

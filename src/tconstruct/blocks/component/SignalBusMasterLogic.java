@@ -40,6 +40,11 @@ public class SignalBusMasterLogic extends MultiblockMasterBaseLogic {
 	}
 	
 	public void updateSignal(CoordTuple source, int channel, int strength) {
+		if (worldObj.isRemote) { return; }
+		
+		if (!(tetheredBuses.contains(source))) {
+			tetheredBuses.add(new CoordTuple(source));
+		}
 		
 		if (highSignal.containsKey(((byte)channel))) {
 			if (!(highSignal.get((byte)channel) instanceof CoordTuple)) {
@@ -122,6 +127,8 @@ public class SignalBusMasterLogic extends MultiblockMasterBaseLogic {
 	@Override
 	public String debugString() {
 		String fromSuper = super.debugString();
+		
+		if (worldObj.isRemote) { return fromSuper; }
 		
 		String tstring = "Tethered Buses: " + tetheredBuses.size() + "\n Signals: [";
 		for (int n = 0; n < 16; n++) {

@@ -16,24 +16,6 @@ import cpw.mods.fml.client.registry.RenderingRegistry;
 public class SignalTerminalRender  implements ISimpleBlockRenderingHandler {
 	public static int renderID = RenderingRegistry.getNextAvailableRenderId();
 
-	/*
-	 *   BITS | Orientation | Signal |  HEX | DEC
-	 * ===========================================
-	 * 000000 |          X- | false  | 0x00 |   0
-	 * 000001 |          X- | true   | 0x01 |   1 
-	 * 000010 |          X+ | false  | 0x02 |   2
-	 * 000011 |          X+ | true   | 0x03 |   3
-	 * 000100 |          Z- | false  | 0x04 |   4
-	 * 000101 |          Z- | true   | 0x05 |   5
-	 * 000110 |          Z+ | false  | 0x06 |   6
-	 * 000111 |          Z+ | true   | 0x07 |   7
-	 * 001000 |          Y- | false  | 0x08 |   8
-	 * 001001 |          Y- | true   | 0x09 |   9
-	 * 001010 |          Y+ | false  | 0x0a |  10
-	 * 001011 |          Y+ | true   | 0x0b |  11
-	 * 
-	 */
-	
 	@Override
 	public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderer) {
 		// Render X-
@@ -45,7 +27,9 @@ public class SignalTerminalRender  implements ISimpleBlockRenderingHandler {
 	}
 
 	@Override
-	public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {	
+	public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {
+		int sidesRendered = 0;
+		
         if (modelId == renderID)
         {
         	TileEntity te = world.getBlockTileEntity(x, y, z);
@@ -60,6 +44,7 @@ public class SignalTerminalRender  implements ISimpleBlockRenderingHandler {
         		return true;
         	}
         	boolean[] connectedSides = ((SignalTerminalLogic)te).getConnectedSides();
+        	
             //Base
             //renderer.setRenderBounds(0.375D, 0.0D, 0.375D, 0.625D, 0.2D, 0.625D);
             //renderer.renderStandardBlock(block, x, y, z);
@@ -72,6 +57,7 @@ public class SignalTerminalRender  implements ISimpleBlockRenderingHandler {
         		
         		renderer.setRenderBounds(0.2D, 0.375D, 0.375D, 0.625D, 0.625D, 0.625D);
         		renderer.renderStandardBlock(block, x, y, z);
+        		sidesRendered++;
             }
             if (connectedSides[ForgeDirection.EAST.ordinal()])
             {
@@ -82,6 +68,7 @@ public class SignalTerminalRender  implements ISimpleBlockRenderingHandler {
         		renderer.setRenderBounds(0.375D, 0.375D, 0.375D, 0.8D, 0.625D, 0.625D);
         		renderer.renderStandardBlock(block, x, y, z);
 
+        		sidesRendered++;
             }
             if (connectedSides[ForgeDirection.SOUTH.ordinal()])
             {
@@ -92,6 +79,7 @@ public class SignalTerminalRender  implements ISimpleBlockRenderingHandler {
         		renderer.setRenderBounds(0.375D, 0.375D, 0.2D, 0.625D, 0.625D, 0.625D);
         		renderer.renderStandardBlock(block, x, y, z);
 
+        		sidesRendered++;
             }
             if (connectedSides[ForgeDirection.NORTH.ordinal()])
             {
@@ -102,16 +90,18 @@ public class SignalTerminalRender  implements ISimpleBlockRenderingHandler {
         		renderer.setRenderBounds(0.375D, 0.375D, 0.375D, 0.625D, 0.625D, 0.8D);
         		renderer.renderStandardBlock(block, x, y, z);
 
+        		sidesRendered++;
             }
             if (connectedSides[ForgeDirection.DOWN.ordinal()])
             {
                 //Extend Y-
-        		renderer.setRenderBounds(0.25D, 0.0D, 0.25D, 0.75D, 0.2D, 0.75D);
+         		renderer.setRenderBounds(0.25D, 0.0D, 0.25D, 0.75D, 0.2D, 0.75D);
         		renderer.renderStandardBlock(block, x, y, z);
         		
         		renderer.setRenderBounds(0.375D, 0.2D, 0.375D, 0.625D, 0.625D, 0.625D);
         		renderer.renderStandardBlock(block, x, y, z);
 
+        		sidesRendered++;
             }
             if (connectedSides[ForgeDirection.UP.ordinal()])
             {
@@ -122,10 +112,22 @@ public class SignalTerminalRender  implements ISimpleBlockRenderingHandler {
         		renderer.setRenderBounds(0.375D, 0.375D, 0.375D, 0.625D, 0.8D, 0.625D);
         		renderer.renderStandardBlock(block, x, y, z);
 
+        		sidesRendered++;
             }
-
+            
+            if (sidesRendered == 0) {
+        		// Render X-
+        		renderer.setRenderBounds(0.0D, 0.25D, 0.25D, 0.2D, 0.75D, 0.75D);
+        		renderer.renderStandardBlock(block, x, y, z);
+        		
+        		renderer.setRenderBounds(0.2D, 0.375D, 0.375D, 0.625D, 0.625D, 0.625D);
+        		renderer.renderStandardBlock(block, x, y, z);
+        		
+        		return true;
+            }
+            return true;
         }
-        return true;
+        return false;
 	}
     private void renderStandardBlock (Block block, int meta, RenderBlocks renderer)
     {
@@ -165,7 +167,6 @@ public class SignalTerminalRender  implements ISimpleBlockRenderingHandler {
 
 	@Override
 	public int getRenderId() {
-		// TODO Auto-generated method stub
 		return this.renderID;
 	}
 }
