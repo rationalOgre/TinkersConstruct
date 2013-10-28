@@ -47,15 +47,24 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
 
 	@Override
 	public void updateEntity() {
+		if (worldObj.isRemote) { return; }
 		if (!this.isConnected()) { return; }
 		
 		byte[] signals = ((SignalBusMasterLogic)this.getMultiblockMaster()).getSignals();
-		
+		ArrayList<CoordTuple> remove = new ArrayList<CoordTuple>();
 		TileEntity te = null;
 		for (CoordTuple term : terminals) {
 			te = worldObj.getBlockTileEntity(term.x, term.y, term.z);
 			if (te instanceof SignalTerminalLogic) {
 				((SignalTerminalLogic)te).receiveSignals(signals);
+			} else {
+				remove.add(term);
+			}
+		}
+		
+		if (remove.size() > 0) {
+			for (CoordTuple term : remove) {
+				terminals.remove(term);
 			}
 		}
 	}
@@ -179,6 +188,25 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
 	
 	public String debugString() {
 		return "Connected: " + terminals.size();
+	}
+
+
+
+	public int getSignal(byte channel) {
+		int highSignal = 0;
+		TileEntity te = null;
+		int tempSignal = 0;
+		for (CoordTuple term : terminals) {
+			te = worldObj.getBlockTileEntity(term.x, term.y, term.z);
+			if (te instanceof SignalTerminalLogic) {
+				tempSignal = ((SignalTerminalLogic)te).getSignal(channel);
+				if (tempSignal > highSignal) {
+					highSignal = tempSignal;
+				}
+			}
+		}
+		
+		return highSignal;
 	}
 	
 }

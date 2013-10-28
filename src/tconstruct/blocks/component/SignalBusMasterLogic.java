@@ -7,7 +7,7 @@ import java.util.List;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import tconstruct.blocks.logic.SignalTerminalLogic;
+import tconstruct.blocks.logic.SignalBusLogic;
 import tconstruct.library.multiblock.IMultiblockMember;
 import tconstruct.library.multiblock.MultiblockMasterBaseLogic;
 import tconstruct.library.util.CoordTuple;
@@ -15,8 +15,11 @@ import tconstruct.library.util.CoordTuple;
 public class SignalBusMasterLogic extends MultiblockMasterBaseLogic {
 	private byte[] signals = new byte[16];
 	private HashMap<Byte, CoordTuple> highSignal = new HashMap<Byte, CoordTuple>();
-	private HashMap<CoordTuple, Byte> sources = new HashMap<CoordTuple, Byte>();
-
+//	private HashMap<CoordTuple, Byte> sources = new HashMap<CoordTuple, Byte>();
+//	private HashMap<CoordTuple, Byte> receivers = new HashMap<CoordTuple, Byte>();
+	
+	private ArrayList<CoordTuple> tetheredBuses = new ArrayList<CoordTuple>();
+	
 	public SignalBusMasterLogic(World world) {
 		super(world);
 		
@@ -36,44 +39,49 @@ public class SignalBusMasterLogic extends MultiblockMasterBaseLogic {
 		return false;
 	}
 	
-	public void updateSignal(CoordTuple source, int signal, int value) {
-		if (value <= 0) {
-			if (highSignal.containsKey((byte)signal) && highSignal.get((byte)signal).equals(source)) {
-				highSignal.remove((byte)signal);
-				int newSignal = 0;
-				CoordTuple newHighCoords = null;
-				TileEntity te = null;
-				SignalTerminalLogic term = null;
-				for (CoordTuple src : sources.keySet()) {
-					if (sources.get(src) == signal) {
-						te = worldObj.getBlockTileEntity(src.x, src.y, src.z);
-						if (te instanceof SignalTerminalLogic) {
-							int srcSignal = ((SignalTerminalLogic)te).getSignal((byte)signal); 
-							if (srcSignal > newSignal) {
-								newSignal = srcSignal;
-								newHighCoords = new CoordTuple(src.x, src.y, src.z);
-							}
-						}	
+	public void updateSignal(CoordTuple source, int channel, int strength) {
+		
+		if (highSignal.containsKey(((byte)channel))) {
+			if (!(highSignal.get((byte)channel) instanceof CoordTuple)) {
+				highSignal.remove((byte)channel);
+			}
+		}
+		if (highSignal.containsKey((byte)channel) && highSignal.get((byte)channel).equals(source)) {
+			highSignal.remove((byte)channel);
+			int newStrength = 0;
+			CoordTuple newHighCoords = null;
+			TileEntity te = null;
+			for (CoordTuple src : tetheredBuses) {
+				te = worldObj.getBlockTileEntity(src.x, src.y, src.z);
+				if (te instanceof SignalBusLogic) {
+					int srcStrength = ((SignalBusLogic)te).getSignal((byte)channel); 
+					if (srcStrength > newStrength) {
+						newStrength = srcStrength;
+						newHighCoords = new CoordTuple(src);
 					}
 				}
-				signals[signal] = (byte)newSignal;
-				highSignal.put((byte)signal, newHighCoords);
+				else {
+					tetheredBuses.remove(src);
+				}
+
 			}
-			if (sources.containsKey(source)) {
-				sources.remove(source);
+			if (newStrength > 0) {
+				signals[channel] = (byte)newStrength;
+				highSignal.put((byte)channel, newHighCoords);
+			} else {
+				signals[channel] = 0;
 			}
-			
 		}
-		if (signals[signal] < value) {
-			signals[signal] = (byte)value;
+
+		if (signals[channel] < strength) {
+			signals[channel] = (byte)strength;
 			
-			if (highSignal.containsKey((byte)signal)) {
-				highSignal.remove((byte)signal);
+			if (highSignal.containsKey((byte)channel)) {
+				highSignal.remove((byte)channel);
 			}
-			highSignal.put((byte)signal, new CoordTuple(source.x, source.y, source.z));
+			highSignal.put((byte)channel, new CoordTuple(source));
 		}
-		sources.put(new CoordTuple(source.x, source.y, source.z), (byte)signal);
-		
+
 	}
 
 	@Override
@@ -115,7 +123,7 @@ public class SignalBusMasterLogic extends MultiblockMasterBaseLogic {
 	public String debugString() {
 		String fromSuper = super.debugString();
 		
-		String tstring = "Sources: " + sources.size() + "\n Signals: [";
+		String tstring = "Tethered Buses: " + tetheredBuses.size() + "\n Signals: [";
 		for (int n = 0; n < 16; n++) {
 			tstring += n + ":" + signals[n];
 			
