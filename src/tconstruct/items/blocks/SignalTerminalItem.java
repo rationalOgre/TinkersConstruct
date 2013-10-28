@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
+import net.minecraft.world.World;
 
 public class SignalTerminalItem extends ItemBlock
 {
@@ -30,4 +31,10 @@ public class SignalTerminalItem extends ItemBlock
         int pos = MathHelper.clamp_int(itemstack.getItemDamage(), 0, blockType.length - 1);
         return (new StringBuilder()).append("Logic.").append(blockType[pos]).toString();
     }
+
+	@Override
+	public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata) {
+		return super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, metadata);
+	}
+    
 }

@@ -15,7 +15,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Direction;
@@ -99,7 +101,19 @@ public class SignalTerminal extends Block implements ITileEntityProvider {
         return 2;
     }
 
-    /**
+    @Override
+	public int onBlockPlaced(World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int meta) {
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if (te == null || !(te instanceof SignalTerminalLogic)) {
+			// New Terminal block being placed; set meta as side for TE to use later
+			return side;
+		}
+		((SignalTerminalLogic)te).addPendingSide(side);
+		
+		return meta;
+	}
+
+	/**
      * checks to see if you can place this block can be placed on that side of a block: BlockLever overrides
      */
     public boolean canPlaceBlockOnSide(World world, int x, int y, int z, int side)
@@ -170,41 +184,50 @@ public class SignalTerminal extends Block implements ITileEntityProvider {
     	 * 1111 |     15 | 0x0f |  15
 		 *
     	 */
+    	TileEntity te = world.getBlockTileEntity(x, y, z);
     	
+    	if (!(te instanceof SignalTerminalLogic)) {
+    		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+    		return;
+    	}
     	
-        int orientation = world.getBlockMetadata(x, y, z) >> 1;
-        float f = 0.1875F;
-
-        if (orientation == 0)
+    	this.setBlockBounds(0.375F, 0.375F, 0.375F, 0.625F, 0.625F, 0.625F);
+    	return;
+    	
+    	/*
+    	boolean[] connected = ((SignalTerminalLogic)te).getConnectedSides();
+    	
+        if (connected[])
         {
-        	// X-
+        	// WEST X- 
             this.setBlockBounds(0.0F, 0.25F, 0.25F, 0.75F, 0.75F, 0.75F);
         }
-        else if (orientation == 1)
+        else if (connected[ForgeDirection.EAST])
         {
-        	// X+
+        	// EAST X+
             this.setBlockBounds(0.25F, 0.25F, 0.25F, 1.0F, 0.75F, 0.75F);
         }
         else if (orientation == 2)
         {
-        	// Z-
+        	// NORTH Z-
             this.setBlockBounds(0.25F, 0.25F, 0.0F, 0.75F, 0.75F, 0.75F);
         }
         else if (orientation == 3)
         {
-        	// Z+
+        	// SOUTH Z+
             this.setBlockBounds(0.25F, 0.25F, 0.25F, 0.75F, 0.75F, 1.0F);
         }
         else if (orientation == 4)
         {
-        	// Y-
+        	// DOWN Y-
             this.setBlockBounds(0.25F, 0.0F, 0.25F, 0.75F, 0.75F, 0.75F);
         }
         else if (orientation == 5)
         {
-        	// Y+
+        	// UP Y+
             this.setBlockBounds(0.25F, 0.25F, 0.25F, 0.75F, 1.0F, 0.75F);
         }
+        */
     }
 
     /**
@@ -265,7 +288,13 @@ public class SignalTerminal extends Block implements ITileEntityProvider {
 		
 		return false;
 	}
-	
-	
+
+	@Override
+	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entityLiving, ItemStack itemStack) {
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if (te instanceof SignalTerminalLogic) {
+			((SignalTerminalLogic)te).connectPending();
+		}
+	}
 }
 

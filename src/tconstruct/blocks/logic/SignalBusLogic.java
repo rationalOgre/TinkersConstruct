@@ -92,6 +92,9 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
     		if (te instanceof SignalTerminalLogic) {
     			((SignalTerminalLogic)te).receiveSignals(signals);
     		}
+    		else {
+    			terminals.remove(term);
+    		}
     	}
     }
 
