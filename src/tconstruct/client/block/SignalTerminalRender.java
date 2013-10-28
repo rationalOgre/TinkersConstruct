@@ -3,9 +3,11 @@ package tconstruct.client.block;
 import org.lwjgl.opengl.GL11;
 
 import tconstruct.blocks.logic.SignalBusLogic;
+import tconstruct.blocks.logic.SignalTerminalLogic;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
@@ -43,71 +45,81 @@ public class SignalTerminalRender  implements ISimpleBlockRenderingHandler {
 	}
 
 	@Override
-	public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {
-		int orientation = world.getBlockMetadata(x, y, z) >> 1;
-				
+	public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {	
         if (modelId == renderID)
         {
+        	TileEntity te = world.getBlockTileEntity(x, y, z);
+        	if (!(te instanceof SignalTerminalLogic)) { 
+        		// Render X-
+        		renderer.setRenderBounds(0.0D, 0.25D, 0.25D, 0.2D, 0.75D, 0.75D);
+        		renderer.renderStandardBlock(block, x, y, z);
+        		
+        		renderer.setRenderBounds(0.2D, 0.375D, 0.375D, 0.625D, 0.625D, 0.625D);
+        		renderer.renderStandardBlock(block, x, y, z);
+        		
+        		return true;
+        	}
+        	boolean[] connectedSides = ((SignalTerminalLogic)te).getConnectedSides();
             //Base
             //renderer.setRenderBounds(0.375D, 0.0D, 0.375D, 0.625D, 0.2D, 0.625D);
             //renderer.renderStandardBlock(block, x, y, z);
             
-            if (orientation == 0)
+            if (connectedSides[ForgeDirection.WEST.ordinal()]) 
             {
                 // Render X-
         		renderer.setRenderBounds(0.0D, 0.25D, 0.25D, 0.2D, 0.75D, 0.75D);
         		renderer.renderStandardBlock(block, x, y, z);
         		
-        		renderer.setRenderBounds(0.2D, 0.375D, 0.375D, 0.75D, 0.625D, 0.625D);
+        		renderer.setRenderBounds(0.2D, 0.375D, 0.375D, 0.625D, 0.625D, 0.625D);
         		renderer.renderStandardBlock(block, x, y, z);
             }
-            else if (orientation == 1)
+            if (connectedSides[ForgeDirection.EAST.ordinal()])
             {
                 //Extend X+
         		renderer.setRenderBounds(0.8D, 0.25D, 0.25D, 1.0D, 0.75D, 0.75D);
         		renderer.renderStandardBlock(block, x, y, z);
         		
-        		renderer.setRenderBounds(0.25D, 0.375D, 0.375D, 0.8D, 0.625D, 0.625D);
+        		renderer.setRenderBounds(0.375D, 0.375D, 0.375D, 0.8D, 0.625D, 0.625D);
         		renderer.renderStandardBlock(block, x, y, z);
 
             }
-            else if (orientation == 2)
+            if (connectedSides[ForgeDirection.SOUTH.ordinal()])
             {
                 //Extend Z-
         		renderer.setRenderBounds(0.25D, 0.25D, 0.0D, 0.75D, 0.75D, 0.2D);
         		renderer.renderStandardBlock(block, x, y, z);
         		
-        		renderer.setRenderBounds(0.375D, 0.375D, 0.2D, 0.625D, 0.625D, 0.75D);
+        		renderer.setRenderBounds(0.375D, 0.375D, 0.2D, 0.625D, 0.625D, 0.625D);
         		renderer.renderStandardBlock(block, x, y, z);
 
             }
-            else if (orientation == 3)
+            if (connectedSides[ForgeDirection.NORTH.ordinal()])
             {
                 //Extend Z+
         		renderer.setRenderBounds(0.25D, 0.25D, 0.8D, 0.75D, 0.75D, 1.0D);
         		renderer.renderStandardBlock(block, x, y, z);
         		
-        		renderer.setRenderBounds(0.375D, 0.375D, 0.25D, 0.625D, 0.625D, 0.8D);
+        		renderer.setRenderBounds(0.375D, 0.375D, 0.375D, 0.625D, 0.625D, 0.8D);
         		renderer.renderStandardBlock(block, x, y, z);
 
             }
-            else if (orientation == 4)
+            if (connectedSides[ForgeDirection.DOWN.ordinal()])
             {
                 //Extend Y-
         		renderer.setRenderBounds(0.25D, 0.0D, 0.25D, 0.75D, 0.2D, 0.75D);
         		renderer.renderStandardBlock(block, x, y, z);
         		
-        		renderer.setRenderBounds(0.375D, 0.2D, 0.375D, 0.625D, 0.75D, 0.625D);
+        		renderer.setRenderBounds(0.375D, 0.2D, 0.375D, 0.625D, 0.625D, 0.625D);
         		renderer.renderStandardBlock(block, x, y, z);
 
             }
-            else if (orientation == 5)
+            if (connectedSides[ForgeDirection.UP.ordinal()])
             {
                 //Extend Y+
         		renderer.setRenderBounds(0.25D, 0.8D, 0.25D, 0.75D, 1.0D, 0.75D);
         		renderer.renderStandardBlock(block, x, y, z);
         		
-        		renderer.setRenderBounds(0.375D, 0.25D, 0.375D, 0.625D, 0.8D, 0.625D);
+        		renderer.setRenderBounds(0.375D, 0.375D, 0.375D, 0.625D, 0.8D, 0.625D);
         		renderer.renderStandardBlock(block, x, y, z);
 
             }
