@@ -1,10 +1,8 @@
 package tconstruct.common;
 
-import cpw.mods.fml.common.*;
-import cpw.mods.fml.common.event.FMLInterModComms;
-import cpw.mods.fml.common.registry.*;
 import java.lang.reflect.Field;
 import java.util.*;
+
 import net.minecraft.block.*;
 import net.minecraft.block.material.*;
 import net.minecraft.creativetab.CreativeTabs;
@@ -39,6 +37,9 @@ import tconstruct.library.util.IPattern;
 import tconstruct.modifiers.*;
 import tconstruct.util.*;
 import tconstruct.util.config.*;
+import cpw.mods.fml.common.*;
+import cpw.mods.fml.common.event.FMLInterModComms;
+import cpw.mods.fml.common.registry.*;
 
 public class TContent implements IFuelHandler
 {
@@ -1627,6 +1628,12 @@ public class TContent implements IFuelHandler
         FurnaceRecipes.smelting().addSmelting(oreBerries.itemID, 4, new ItemStack(materials, 1, 22), 0.2f);
         //FurnaceRecipes.smelting().addSmelting(oreBerries.itemID, 5, new ItemStack(materials, 1, 23), 0.2f);
 
+        FurnaceRecipes.smelting().addSmelting(oreBerry.blockID, 8, new ItemStack(materials, 1, 19), 0.15f);
+        FurnaceRecipes.smelting().addSmelting(oreBerry.blockID, 9, new ItemStack(Item.goldNugget, 1), 0.15f);
+        FurnaceRecipes.smelting().addSmelting(oreBerry.blockID, 10, new ItemStack(materials, 1, 20), 0.15f);
+        FurnaceRecipes.smelting().addSmelting(oreBerry.blockID, 11, new ItemStack(materials, 1, 21), 0.15f);
+        FurnaceRecipes.smelting().addSmelting(oreBerrySecond.blockID, 8, new ItemStack(materials, 1, 22), 0.15f);
+
         FurnaceRecipes.smelting().addSmelting(oreGravel.blockID, 0, new ItemStack(Item.ingotIron), 0.2f);
         FurnaceRecipes.smelting().addSmelting(oreGravel.blockID, 1, new ItemStack(Item.ingotGold), 0.2f);
         FurnaceRecipes.smelting().addSmelting(oreGravel.blockID, 2, new ItemStack(materials, 1, 9), 0.2f);
@@ -1718,6 +1725,7 @@ public class TContent implements IFuelHandler
         GameRegistry.addRecipe(new ItemStack(Block.pumpkinLantern, 1, 0), "p", "s", 'p', new ItemStack(Block.pumpkin), 'w', new ItemStack(stoneTorch));
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(stoneTorch, 4), "p", "w", 'p', new ItemStack(Item.coal, 1, Short.MAX_VALUE), 'w', "stoneRod"));
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(stoneLadder, 3), "w w", "www", "w w", 'w', "stoneRod"));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(woodenRail, 4, 0), "b b", "bxb", "b b", 'b', "plankWood", 'x', "stickWood"));
         GameRegistry.addRecipe(new ItemStack(toolRod, 4, 1), "c", "c", 'c', new ItemStack(Block.stone));
         GameRegistry.addRecipe(new ItemStack(toolRod, 2, 1), "c", "c", 'c', new ItemStack(Block.cobblestone));
 
@@ -1966,8 +1974,10 @@ public class TContent implements IFuelHandler
         OreDictionary.registerOre("glass", new ItemStack(clearGlass));
         RecipeRemover.removeShapedRecipe(new ItemStack(Block.pistonStickyBase));
         RecipeRemover.removeShapedRecipe(new ItemStack(Item.magmaCream));
+        RecipeRemover.removeShapedRecipe(new ItemStack(Item.leash));
         GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Block.pistonStickyBase), "slimeball", Block.pistonBase));
         GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Item.magmaCream), "slimeball", Item.blazePowder));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Item.leash, 2), "ss ", "sS ", "  s", 's', Item.silk, 'S', "slimeball"));
     }
 
     public static boolean thaumcraftAvailable;
@@ -2059,7 +2069,7 @@ public class TContent implements IFuelHandler
 
         if (objArray[var4] instanceof String[])
         {
-            String[] var7 = (String[]) ((String[]) objArray[var4++]);
+            String[] var7 = ((String[]) objArray[var4++]);
 
             for (int var8 = 0; var8 < var7.length; ++var8)
             {
@@ -2289,6 +2299,8 @@ public class TContent implements IFuelHandler
     {
         if (fuel.itemID == materials.itemID && fuel.getItemDamage() == 7)
             return 26400;
+        if (fuel.itemID == woodPattern.itemID)
+            return 800;
         return 0;
     }
 }
