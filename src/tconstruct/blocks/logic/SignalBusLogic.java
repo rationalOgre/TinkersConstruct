@@ -29,93 +29,120 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
 {
     private int ticks = 0;
-	private List<CoordTuple> terminals = new ArrayList<CoordTuple>();
+    private List<CoordTuple> terminals = new ArrayList<CoordTuple>();
 
     public SignalBusLogic()
     {
 
     }
-    
-    
 
     @Override
-	public boolean canUpdate() {
-		return true;
-	}
-
-
-
-	@Override
-	public void updateEntity() {
-		if (worldObj.isRemote) { return; }
-		if (!this.isConnected()) { return; }
-		
-		byte[] signals = ((SignalBusMasterLogic)this.getMultiblockMaster()).getSignals();
-		ArrayList<CoordTuple> remove = new ArrayList<CoordTuple>();
-		TileEntity te = null;
-		for (CoordTuple term : terminals) {
-			te = worldObj.getBlockTileEntity(term.x, term.y, term.z);
-			if (te instanceof SignalTerminalLogic) {
-				((SignalTerminalLogic)te).receiveSignals(signals);
-			} else {
-				remove.add(term);
-			}
-		}
-		
-		if (remove.size() > 0) {
-			for (CoordTuple term : remove) {
-				terminals.remove(term);
-			}
-		}
-	}
-
-
-
-	public boolean registerTerminal(World world, int x, int y, int z) {
-		if (worldObj.isRemote) { return false; }
-    	if (world == worldObj && world.isRemote == worldObj.isRemote) {
-    		if (worldObj.getBlockTileEntity(x, y, z) instanceof SignalTerminalLogic) {
-    			terminals.add(new CoordTuple(x, y, z));
-    			((SignalTerminalLogic)world.getBlockTileEntity(x, y, z)).setBusCoords(world, xCoord, yCoord, zCoord);
-    			return true;
-    		}
-    	}
-    	
-    	return false;
-    }
-    
-    public boolean isRegisteredTerminal(World world, int x, int y, int z) {
-    	if (worldObj.isRemote) { return false; }
-    	return terminals.contains(new CoordTuple(x, y, z));
-    }
-    
-    public boolean unregisterTerminal(World world, int x, int y, int z) {
-    	if (worldObj.isRemote) { return false; }
-    	return terminals.remove(new CoordTuple(x, y, z));
-    }
-    
-    public void doTerminalScan() {
-    	TileEntity te = null;
-    	SignalTerminalLogic tterm = null;
-    	byte[] signals = ((SignalBusMasterLogic)this.getMultiblockMaster()).getSignals();
-    	
-    	for (CoordTuple term : terminals) {
-    		te = worldObj.getBlockTileEntity(term.x, term.y, term.z);
-    		if (te instanceof SignalTerminalLogic) {
-    			((SignalTerminalLogic)te).receiveSignals(signals);
-    		}
-    		else {
-    			terminals.remove(term);
-    		}
-    	}
+    public boolean canUpdate ()
+    {
+        return true;
     }
 
     @Override
-	public boolean isCompatible(Object other) {
-		return (other.getClass() == this.getClass());
-	}
+    public void updateEntity ()
+    {
+        if (worldObj.isRemote)
+        {
+            return;
+        }
+        if (!this.isConnected())
+        {
+            return;
+        }
 
-	@Override
+        byte[] signals = ((SignalBusMasterLogic) this.getMultiblockMaster()).getSignals();
+        ArrayList<CoordTuple> remove = new ArrayList<CoordTuple>();
+        TileEntity te = null;
+        for (CoordTuple term : terminals)
+        {
+            te = worldObj.getBlockTileEntity(term.x, term.y, term.z);
+            if (te instanceof SignalTerminalLogic)
+            {
+                ((SignalTerminalLogic) te).receiveSignals(signals);
+            }
+            else
+            {
+                remove.add(term);
+            }
+        }
+
+        if (remove.size() > 0)
+        {
+            for (CoordTuple term : remove)
+            {
+                terminals.remove(term);
+            }
+        }
+    }
+
+    public boolean registerTerminal (World world, int x, int y, int z)
+    {
+        if (worldObj.isRemote)
+        {
+            return false;
+        }
+        if (world == worldObj && world.isRemote == worldObj.isRemote)
+        {
+            if (worldObj.getBlockTileEntity(x, y, z) instanceof SignalTerminalLogic)
+            {
+                terminals.add(new CoordTuple(x, y, z));
+                ((SignalTerminalLogic) world.getBlockTileEntity(x, y, z)).setBusCoords(world, xCoord, yCoord, zCoord);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isRegisteredTerminal (World world, int x, int y, int z)
+    {
+        if (worldObj.isRemote)
+        {
+            return false;
+        }
+        return terminals.contains(new CoordTuple(x, y, z));
+    }
+
+    public boolean unregisterTerminal (World world, int x, int y, int z)
+    {
+        if (worldObj.isRemote)
+        {
+            return false;
+        }
+        return terminals.remove(new CoordTuple(x, y, z));
+    }
+
+    public void doTerminalScan ()
+    {
+        TileEntity te = null;
+        SignalTerminalLogic tterm = null;
+        byte[] signals = ((SignalBusMasterLogic) this.getMultiblockMaster()).getSignals();
+
+        for (CoordTuple term : terminals)
+        {
+            te = worldObj.getBlockTileEntity(term.x, term.y, term.z);
+            if (te instanceof SignalTerminalLogic)
+            {
+                ((SignalTerminalLogic) te).receiveSignals(signals);
+            }
+            else
+            {
+                terminals.remove(term);
+            }
+        }
+    }
+
+    @Override
+    public boolean isCompatible (Object other)
+    {
+        return (other.getClass() == this.getClass());
+    }
+
+    @Override
     public void readFromNBT (NBTTagCompound tags)
     {
         super.readFromNBT(tags);
@@ -124,7 +151,7 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
 
     public void readCustomNBT (NBTTagCompound tags)
     {
-    	
+
     }
 
     @Override
@@ -154,19 +181,22 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
         this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
     }
 
-	@Override
-	public boolean getActive() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean getActive ()
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public void setActive(boolean flag) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void setActive (boolean flag)
+    {
+        // TODO Auto-generated method stub
 
-	public boolean isConnected(ForgeDirection dir) {
+    }
+
+    public boolean isConnected (ForgeDirection dir)
+    {
         switch (dir)
         {
         case DOWN:
@@ -182,34 +212,38 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
         default:
             return false;
         }
-	}
+    }
 
-	@Override
-	public MultiblockMasterBaseLogic getNewMultiblockMasterObject() {
-		return new SignalBusMasterLogic(this.worldObj);
-	}
-	
-	public String debugString() {
-		return "Connected: " + terminals.size();
-	}
+    @Override
+    public MultiblockMasterBaseLogic getNewMultiblockMasterObject ()
+    {
+        return new SignalBusMasterLogic(this.worldObj);
+    }
 
+    public String debugString ()
+    {
+        return "Connected: " + terminals.size();
+    }
 
+    public int getSignal (byte channel)
+    {
+        int highSignal = 0;
+        TileEntity te = null;
+        int tempSignal = 0;
+        for (CoordTuple term : terminals)
+        {
+            te = worldObj.getBlockTileEntity(term.x, term.y, term.z);
+            if (te instanceof SignalTerminalLogic)
+            {
+                tempSignal = ((SignalTerminalLogic) te).getSignal(channel);
+                if (tempSignal > highSignal)
+                {
+                    highSignal = tempSignal;
+                }
+            }
+        }
 
-	public int getSignal(byte channel) {
-		int highSignal = 0;
-		TileEntity te = null;
-		int tempSignal = 0;
-		for (CoordTuple term : terminals) {
-			te = worldObj.getBlockTileEntity(term.x, term.y, term.z);
-			if (te instanceof SignalTerminalLogic) {
-				tempSignal = ((SignalTerminalLogic)te).getSignal(channel);
-				if (tempSignal > highSignal) {
-					highSignal = tempSignal;
-				}
-			}
-		}
-		
-		return highSignal;
-	}
-	
+        return highSignal;
+    }
+
 }

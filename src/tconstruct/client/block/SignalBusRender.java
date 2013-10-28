@@ -13,25 +13,27 @@ import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 
-public class SignalBusRender implements ISimpleBlockRenderingHandler {
-	public static int renderID = RenderingRegistry.getNextAvailableRenderId();
+public class SignalBusRender implements ISimpleBlockRenderingHandler
+{
+    public static int renderID = RenderingRegistry.getNextAvailableRenderId();
 
-	@Override
-	public void renderInventoryBlock(Block block, int metadata, int modelID,
-			RenderBlocks renderer) {
-		//Base
-		renderer.setRenderBounds(0.375D, 0.0D, 0.375D, 0.625D, 0.2D, 0.625D);
-		this.renderStandardBlock(block, metadata, renderer);
-		//Extend Z-
-		renderer.setRenderBounds(0.375D, 0.0D, 0.0D, 0.625D, 0.2D, 0.375D);
-		this.renderStandardBlock(block, metadata, renderer);
-		//Extend Z+
-		renderer.setRenderBounds(0.375D, 0.0D, 0.625D, 0.625D, 0.2D, 1D);
-		this.renderStandardBlock(block, metadata, renderer);
-	}
+    @Override
+    public void renderInventoryBlock (Block block, int metadata, int modelID, RenderBlocks renderer)
+    {
+        //Base
+        renderer.setRenderBounds(0.375D, 0.0D, 0.375D, 0.625D, 0.2D, 0.625D);
+        this.renderStandardBlock(block, metadata, renderer);
+        //Extend Z-
+        renderer.setRenderBounds(0.375D, 0.0D, 0.0D, 0.625D, 0.2D, 0.375D);
+        this.renderStandardBlock(block, metadata, renderer);
+        //Extend Z+
+        renderer.setRenderBounds(0.375D, 0.0D, 0.625D, 0.625D, 0.2D, 1D);
+        this.renderStandardBlock(block, metadata, renderer);
+    }
 
-	@Override
-	public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {
+    @Override
+    public boolean renderWorldBlock (IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer)
+    {
         if (modelId == renderID)
         {
             SignalBusLogic tile = (SignalBusLogic) world.getBlockTileEntity(x, y, z);
@@ -39,38 +41,39 @@ public class SignalBusRender implements ISimpleBlockRenderingHandler {
             //Base
             renderer.setRenderBounds(0.375D, 0.0D, 0.375D, 0.625D, 0.2D, 0.625D);
             renderer.renderStandardBlock(block, x, y, z);
-            
+
             if (tile.isConnected(ForgeDirection.NORTH))
             {
                 //Extend Z-
-            	renderer.setRenderBounds(0.375D, 0.0D, 0.0D, 0.625D, 0.2D, 0.375D);
-        		renderer.renderStandardBlock(block, x, y, z);
+                renderer.setRenderBounds(0.375D, 0.0D, 0.0D, 0.625D, 0.2D, 0.375D);
+                renderer.renderStandardBlock(block, x, y, z);
             }
 
             if (tile.isConnected(ForgeDirection.SOUTH))
             {
                 //Extend Z+
-        		renderer.setRenderBounds(0.375D, 0.0D, 0.625D, 0.625D, 0.2D, 1D);
-        		renderer.renderStandardBlock(block, x, y, z);
+                renderer.setRenderBounds(0.375D, 0.0D, 0.625D, 0.625D, 0.2D, 1D);
+                renderer.renderStandardBlock(block, x, y, z);
             }
 
             if (tile.isConnected(ForgeDirection.WEST))
             {
                 //Extend X-
-            	renderer.setRenderBounds(0.0D, 0.0D, 0.375D, 0.375D, 0.2D, 0.625D);
-        		renderer.renderStandardBlock(block, x, y, z);
+                renderer.setRenderBounds(0.0D, 0.0D, 0.375D, 0.375D, 0.2D, 0.625D);
+                renderer.renderStandardBlock(block, x, y, z);
             }
 
             if (tile.isConnected(ForgeDirection.EAST))
             {
                 //Extend X+
-            	renderer.setRenderBounds(0.625D, 0.0D, 0.375D, 1.0D, 0.2D, 0.625D);
-        		renderer.renderStandardBlock(block, x, y, z);
+                renderer.setRenderBounds(0.625D, 0.0D, 0.375D, 1.0D, 0.2D, 0.625D);
+                renderer.renderStandardBlock(block, x, y, z);
             }
 
         }
         return true;
-	}
+    }
+
     private void renderStandardBlock (Block block, int meta, RenderBlocks renderer)
     {
         Tessellator tessellator = Tessellator.instance;
