@@ -1,5 +1,7 @@
 package tconstruct.blocks.logic;
 
+import tconstruct.TConstruct;
+import tconstruct.blocks.SignalTerminal;
 import tconstruct.blocks.component.SignalBusMasterLogic;
 import tconstruct.common.TContent;
 import tconstruct.library.multiblock.MultiblockMasterBaseLogic;
@@ -9,12 +11,13 @@ import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Icon;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 
 public class SignalTerminalLogic extends TileEntity
 {
-
     private boolean[] connectedSides = null;
     private int pendingSide = -1;
     private CoordTuple signalBus = null;
@@ -140,6 +143,51 @@ public class SignalTerminalLogic extends TileEntity
         }
     }
 
+    private void checkSanity ()
+    {
+        if (worldObj == null || worldObj.isRemote)
+        {
+            return;
+        }
+
+        boolean brainless = false;
+        if (signalBus == null)
+        {
+            return;
+        }
+
+        if (!(signalBus instanceof CoordTuple))
+        {
+            signalBus = null;
+            brainless = true;
+        }
+        TileEntity te = worldObj.getBlockTileEntity(signalBus.x, signalBus.y, signalBus.z);
+        if (te == null || !(te instanceof SignalBusLogic))
+        {
+            // We missed the bus! And we'll never, ever, ever do it again
+            signalBus = null;
+            brainless = true;
+        }
+        else
+        {
+            if (!SignalBusLogic.hasTerminals(worldObj, signalBus.x, signalBus.y, signalBus.z))
+            {
+                tryRegister();
+                if (!isRegistered)
+                {
+                    brainless = true;
+                }
+            }
+        }
+
+        if (brainless)
+        {
+            this.receiveSignals(new byte[] { 0, 0, 0, 0, 0, 0 });
+            doUpdate = true;
+        }
+
+    }
+
     @Override
     public void updateEntity ()
     {
@@ -148,6 +196,8 @@ public class SignalTerminalLogic extends TileEntity
             connectedSides[pendingSide] = true;
             pendingSide = -1;
         }
+
+        checkSanity();
 
         if (!doUpdate)
         {
@@ -368,5 +418,30 @@ public class SignalTerminalLogic extends TileEntity
         onInventoryChanged();
         worldObj.markBlockForRenderUpdate(xCoord, yCoord, zCoord);
         this.doUpdate = true;
+    }
+
+    public static Icon getChannelIcon (IBlockAccess world, int x, int y, int z)
+    {
+        TileEntity te = world.getBlockTileEntity(x, y, z);
+        if (te != null && te instanceof SignalTerminalLogic)
+        {
+            int channel = ((SignalTerminalLogic) te).signalSetting;
+
+            return ((SignalTerminal) TConstruct.instance.content.signalTerminal).getChannelIcon(channel);
+        }
+
+        return ((SignalTerminal) TConstruct.instance.content.signalTerminal).getChannelIcon(0);
+    }
+
+    public void nextChannel ()
+    {
+        signalSetting++;
+
+        if (signalSetting >= 16)
+        {
+            signalSetting = 0;
+        }
+
+        doUpdate = true;
     }
 }

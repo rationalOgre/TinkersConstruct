@@ -8,6 +8,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
@@ -43,7 +44,9 @@ public class SignalTerminalRender implements ISimpleBlockRenderingHandler
                 renderer.renderStandardBlock(block, x, y, z);
 
                 renderer.setRenderBounds(0.2D, 0.375D, 0.375D, 0.625D, 0.625D, 0.625D);
+                renderer.setOverrideBlockTexture(SignalTerminalLogic.getChannelIcon(world, x, y, z));
                 renderer.renderStandardBlock(block, x, y, z);
+                renderer.clearOverrideBlockTexture();
 
                 return true;
             }
@@ -60,7 +63,10 @@ public class SignalTerminalRender implements ISimpleBlockRenderingHandler
                 renderer.renderStandardBlock(block, x, y, z);
 
                 renderer.setRenderBounds(0.2D, 0.375D, 0.375D, 0.625D, 0.625D, 0.625D);
+                renderer.setOverrideBlockTexture(SignalTerminalLogic.getChannelIcon(world, x, y, z));
                 renderer.renderStandardBlock(block, x, y, z);
+                renderer.clearOverrideBlockTexture();
+
                 sidesRendered++;
             }
             if (connectedSides[ForgeDirection.EAST.ordinal()])
@@ -70,7 +76,9 @@ public class SignalTerminalRender implements ISimpleBlockRenderingHandler
                 renderer.renderStandardBlock(block, x, y, z);
 
                 renderer.setRenderBounds(0.375D, 0.375D, 0.375D, 0.8D, 0.625D, 0.625D);
+                renderer.setOverrideBlockTexture(SignalTerminalLogic.getChannelIcon(world, x, y, z));
                 renderer.renderStandardBlock(block, x, y, z);
+                renderer.clearOverrideBlockTexture();
 
                 sidesRendered++;
             }
@@ -81,7 +89,9 @@ public class SignalTerminalRender implements ISimpleBlockRenderingHandler
                 renderer.renderStandardBlock(block, x, y, z);
 
                 renderer.setRenderBounds(0.375D, 0.375D, 0.2D, 0.625D, 0.625D, 0.625D);
+                renderer.setOverrideBlockTexture(SignalTerminalLogic.getChannelIcon(world, x, y, z));
                 renderer.renderStandardBlock(block, x, y, z);
+                renderer.clearOverrideBlockTexture();
 
                 sidesRendered++;
             }
@@ -92,7 +102,9 @@ public class SignalTerminalRender implements ISimpleBlockRenderingHandler
                 renderer.renderStandardBlock(block, x, y, z);
 
                 renderer.setRenderBounds(0.375D, 0.375D, 0.375D, 0.625D, 0.625D, 0.8D);
+                renderer.setOverrideBlockTexture(SignalTerminalLogic.getChannelIcon(world, x, y, z));
                 renderer.renderStandardBlock(block, x, y, z);
+                renderer.clearOverrideBlockTexture();
 
                 sidesRendered++;
             }
@@ -103,7 +115,9 @@ public class SignalTerminalRender implements ISimpleBlockRenderingHandler
                 renderer.renderStandardBlock(block, x, y, z);
 
                 renderer.setRenderBounds(0.375D, 0.2D, 0.375D, 0.625D, 0.625D, 0.625D);
+                renderer.setOverrideBlockTexture(SignalTerminalLogic.getChannelIcon(world, x, y, z));
                 renderer.renderStandardBlock(block, x, y, z);
+                renderer.clearOverrideBlockTexture();
 
                 sidesRendered++;
             }
@@ -114,7 +128,9 @@ public class SignalTerminalRender implements ISimpleBlockRenderingHandler
                 renderer.renderStandardBlock(block, x, y, z);
 
                 renderer.setRenderBounds(0.375D, 0.375D, 0.375D, 0.625D, 0.8D, 0.625D);
+                renderer.setOverrideBlockTexture(SignalTerminalLogic.getChannelIcon(world, x, y, z));
                 renderer.renderStandardBlock(block, x, y, z);
+                renderer.clearOverrideBlockTexture();
 
                 sidesRendered++;
             }
@@ -126,7 +142,9 @@ public class SignalTerminalRender implements ISimpleBlockRenderingHandler
                 renderer.renderStandardBlock(block, x, y, z);
 
                 renderer.setRenderBounds(0.2D, 0.375D, 0.375D, 0.625D, 0.625D, 0.625D);
+                renderer.setOverrideBlockTexture(SignalTerminalLogic.getChannelIcon(world, x, y, z));
                 renderer.renderStandardBlock(block, x, y, z);
+                renderer.clearOverrideBlockTexture();
 
                 return true;
             }

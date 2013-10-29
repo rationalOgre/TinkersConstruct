@@ -185,7 +185,8 @@ public abstract class MultiblockBaseLogic extends TileEntity implements IMultibl
                     }
                     else if (comparison == 0)
                     {
-                        //throw new IllegalStateException(String.format("Found two controllers (hashes %d,  %d) with identical reference coord %s", targetMaster.hashCode(), candidateMaster.hashCode(), targetMaster.getReferenceCoord().toString()));
+                        throw new IllegalStateException(String.format("Found two controllers (hashes %d,  %d) with identical reference coord %s", targetMaster.hashCode(), candidateMaster.hashCode(),
+                                targetMaster.getReferenceCoord().toString()));
                     }
                     else
                     {

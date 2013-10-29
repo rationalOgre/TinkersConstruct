@@ -1,8 +1,10 @@
 package tconstruct.blocks.logic;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.swing.text.MaskFormatter;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
@@ -29,7 +31,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
 {
     private int ticks = 0;
-    private List<CoordTuple> terminals = new ArrayList<CoordTuple>();
+    private Set<CoordTuple> terminals = new HashSet<CoordTuple>();
 
     public SignalBusLogic()
     {
@@ -55,7 +57,7 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
         }
 
         byte[] signals = ((SignalBusMasterLogic) this.getMultiblockMaster()).getSignals();
-        ArrayList<CoordTuple> remove = new ArrayList<CoordTuple>();
+        Set<CoordTuple> remove = new HashSet<CoordTuple>();
         TileEntity te = null;
         for (CoordTuple term : terminals)
         {
@@ -116,6 +118,22 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
         return terminals.remove(new CoordTuple(x, y, z));
     }
 
+    public boolean hasTerminals ()
+    {
+        return (terminals.size() > 0);
+    }
+
+    public static boolean hasTerminals (World world, int x, int y, int z)
+    {
+        TileEntity te = world.getBlockTileEntity(x, y, z);
+        if (te != null && te instanceof SignalBusLogic)
+        {
+            return ((SignalBusLogic) te).hasTerminals();
+        }
+
+        return false;
+    }
+
     public void doTerminalScan ()
     {
         TileEntity te = null;
@@ -128,6 +146,7 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
             if (te instanceof SignalTerminalLogic)
             {
                 ((SignalTerminalLogic) te).receiveSignals(signals);
+                ((SignalTerminalLogic) te).reportToMaster((SignalBusMasterLogic) this.getMultiblockMaster());
             }
             else
             {
@@ -245,5 +264,4 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
 
         return highSignal;
     }
-
 }
