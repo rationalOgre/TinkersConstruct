@@ -190,6 +190,7 @@ public class TProxyClient extends TProxyCommon
         // TickRegistry.registerTickHandler(new TimeTicker(), Side.CLIENT);
         // TickRegistry.registerTickHandler(new TCommonTickHandler(),
         // Side.CLIENT);
+        TickRegistry.registerScheduledTickHandler(new MultiblockServerTickHandler(), Side.SERVER);
     }
 
     /* Registers any rendering code. */

@@ -1,6 +1,9 @@
 package tconstruct.blocks;
 
+import java.util.List;
 import java.util.Random;
+
+import codechicken.nei.api.IHighlightHandler;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -15,20 +18,50 @@ import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Direction;
+import net.minecraft.util.EnumMovingObjectType;
 import net.minecraft.util.Icon;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.ForgeDirection.*;
+import net.minecraftforge.event.ForgeSubscribe;
 
 public class SignalTerminal extends Block implements ITileEntityProvider
 {
+    
+    public static class TerminalGeometry {
+        public static float plate_width_min = 0.25F;
+        public static float plate_width_max = 0.75F;
+        public static float plate_low_max = 0.15F;
+        public static float plate_high_max = 1.0F;
+        public static float plate_low_min = 0.0F;
+        public static float plate_high_min = 1 - plate_low_max;
+        public static float center_min = 0.375F;
+        public static float center_max = 0.625F;
+        public static float channel_width_min = 0.375F;
+        public static float channel_width_max = 0.625F;
+        public static float channel_low_max = center_min;
+        public static float channel_high_max = plate_high_min;
+        public static float channel_low_min = plate_low_max;
+        public static float channel_high_min = center_max;
+    } 
+        
+    public static int HITBOXES = 13;
+    public static int[] sideBoxMapping = new int[] {
+        -1, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5
+    };
+
     public Icon[] icons;
     public Icon[] channelIcons;
     public String[] textureNames = new String[] { "signalbus" };
@@ -106,6 +139,19 @@ public class SignalTerminal extends Block implements ITileEntityProvider
         return false;
     }
 
+    @Override
+    public boolean isBlockSolidOnSide (World world, int x, int y, int z, ForgeDirection side)
+    {
+        TileEntity te = world.getBlockTileEntity(x, y, z);
+        if (te != null && te instanceof SignalTerminalLogic) {
+            if (((SignalTerminalLogic)te).getConnectedSides()[side.ordinal()] != -1)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * The type of render function that is called for this block
      */
@@ -121,36 +167,6 @@ public class SignalTerminal extends Block implements ITileEntityProvider
     public int tickRate (World par1World)
     {
         return 1;
-    }
-
-    @Override
-    public int onBlockPlaced (World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int meta)
-    {
-        TileEntity te = world.getBlockTileEntity(x, y, z);
-
-        int tside = side;
-        switch (side)
-        {
-        case 0: // DOWN
-        case 1: // UP
-        case 4: // EAST
-        case 5: // WEST
-            tside = ForgeDirection.OPPOSITES[side];
-            break;
-        default:
-            tside = side;
-            break;
-        }
-
-        if (te == null || !(te instanceof SignalTerminalLogic))
-        {
-            // New Terminal block being placed; set meta as side for TE to use later
-            return tside;
-        }
-
-        ((SignalTerminalLogic) te).addPendingSide(tside);
-
-        return tside;
     }
 
     /**
@@ -181,90 +197,70 @@ public class SignalTerminal extends Block implements ITileEntityProvider
     */
     public void setBlockBoundsBasedOnState (IBlockAccess world, int x, int y, int z)
     {
-        /*
-         *   BITS | Orientation | Signal |  HEX | DEC
-         * ===========================================
-         * 000000 | WEST     X- |        | 0x00 |   0
-         * 000001 | WEST     X- |        | 0x01 |   1 
-         * 000010 | EAST     X+ |        | 0x02 |   2
-         * 000011 | EAST     X+ |        | 0x03 |   3
-         * 000100 | NORTH    Z- |        | 0x04 |   4
-         * 000101 | NORTH    Z- |        | 0x05 |   5
-         * 000110 | SOUTH    Z+ |        | 0x06 |   6
-         * 000111 | SOUTH    Z+ |        | 0x07 |   7
-         * 001000 | DOWN     Y- |        | 0x08 |   8
-         * 001001 | DOWN     Y- |        | 0x09 |   9
-         * 001010 | UP       Y+ |        | 0x0a |  10
-         * 001011 | UP       Y+ |        | 0x0b |  11
-         * 
-         */
-
-        /*
-         *   BITS | Signal |  HEX | DEC
-         * =============================
-         * 0000 |      0 | 0x00 |   0
-         * 0001 |      1 | 0x01 |   1 
-         * 0010 |      2 | 0x02 |   2
-         * 0011 |      3 | 0x03 |   3
-         * 0100 |      4 | 0x04 |   4
-         * 0101 |      5 | 0x05 |   5
-         * 0110 |      6 | 0x06 |   6
-         * 0111 |      7 | 0x07 |   7
-         * 1000 |      8 | 0x08 |   8
-         * 1001 |      9 | 0x09 |   9
-         * 1010 |     10 | 0x0a |  10
-         * 1011 |     11 | 0x0b |  11
-         * 1100 |     12 | 0x0c |  12
-         * 1101 |     13 | 0x0d |  13
-         * 1110 |     14 | 0x0e |  14
-         * 1111 |     15 | 0x0f |  15
-         *
-         */
-        TileEntity te = world.getBlockTileEntity(x, y, z);
-
-        if (!(te instanceof SignalTerminalLogic))
-        {
-            this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-            return;
-        }
-
-        this.setBlockBounds(0.375F, 0.375F, 0.375F, 0.625F, 0.625F, 0.625F);
-        return;
-
-        /*
-        boolean[] connected = ((SignalTerminalLogic)te).getConnectedSides();
+        float minX = 1;
+        float minY = 1;
+        float minZ = 1;
+        float maxX = 0;
+        float maxY = 0;
+        float maxZ = 0;
         
-        if (connected[])
-        {
-        	// WEST X- 
-            this.setBlockBounds(0.0F, 0.25F, 0.25F, 0.75F, 0.75F, 0.75F);
+        TileEntity te = world.getBlockTileEntity(x, y, z);
+        if (te instanceof SignalTerminalLogic) {
+            for (AxisAlignedBB aabb : getBoxes((SignalTerminalLogic)te)) {
+                if (aabb == null) {
+                    continue;
+                }
+                
+                minX = Math.min(minX, (float)aabb.minX);
+                minY = Math.min(minY, (float)aabb.minY);
+                minZ = Math.min(minZ, (float)aabb.minZ);
+                maxX = Math.max(maxX, (float)aabb.maxX);
+                maxY = Math.max(maxY, (float)aabb.maxY);
+                maxZ = Math.max(maxZ, (float)aabb.maxZ);
+            }
+            
+            setBlockBounds(minX, minY, minZ, maxX, maxY, maxZ);
         }
-        else if (connected[ForgeDirection.EAST])
+        else
         {
-        	// EAST X+
-            this.setBlockBounds(0.25F, 0.25F, 0.25F, 1.0F, 0.75F, 0.75F);
+            this.setBlockBounds(0.375F, 0.375F, 0.375F, 0.625F, 0.625F, 0.625F);
         }
-        else if (orientation == 2)
+        return;
+    }
+    
+    public void addCollisionBoxesToList (World world, int x, int y, int z, AxisAlignedBB collisionTest, List collisionBoxList, Entity entity) {
+        TileEntity te = world.getBlockTileEntity(x, y, z);
+        if (te instanceof SignalTerminalLogic) {
+            for (AxisAlignedBB aabb : getBoxes((SignalTerminalLogic)te)) {
+                if (aabb == null) {
+                    continue;
+                }
+                
+                aabb = AxisAlignedBB.getBoundingBox(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
+                aabb.minX += x;
+                aabb.minY += y;
+                aabb.minZ += z;
+                aabb.maxX += x;
+                aabb.maxY += y;
+                aabb.maxZ += z;
+                
+                if (collisionTest.intersectsWith(aabb)){
+                    collisionBoxList.add(aabb);
+                }
+            }
+        }
+        else
         {
-        	// NORTH Z-
-            this.setBlockBounds(0.25F, 0.25F, 0.0F, 0.75F, 0.75F, 0.75F);
+            super.addCollisionBoxesToList(world, x, y, z, collisionTest, collisionBoxList, entity);
         }
-        else if (orientation == 3)
-        {
-        	// SOUTH Z+
-            this.setBlockBounds(0.25F, 0.25F, 0.25F, 0.75F, 0.75F, 1.0F);
+    }
+    
+    @SideOnly(Side.CLIENT)
+    @ForgeSubscribe
+    public void onBlockHighlight (DrawBlockHighlightEvent event) {
+        if (event.target.typeOfHit == EnumMovingObjectType.TILE && event.player.worldObj.getBlockId(event.target.blockX, event.target.blockY, event.target.blockZ) == blockID) {
+            
         }
-        else if (orientation == 4)
-        {
-        	// DOWN Y-
-            this.setBlockBounds(0.25F, 0.0F, 0.25F, 0.75F, 0.75F, 0.75F);
-        }
-        else if (orientation == 5)
-        {
-        	// UP Y+
-            this.setBlockBounds(0.25F, 0.25F, 0.25F, 0.75F, 1.0F, 0.75F);
-        }
-        */
     }
 
     /**
@@ -272,13 +268,15 @@ public class SignalTerminal extends Block implements ITileEntityProvider
      * returns true, standard redstone propagation rules will apply instead and this will not be called. Args: World, X,
      * Y, Z, side. Note that the side is reversed - eg it is 1 (up) when checking the bottom of the block.
      */
-    public int isProvidingWeakPower (IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5)
+    public int isProvidingWeakPower (IBlockAccess world, int x, int y, int z, int localSide)
     {
-        //return 0;
-
-        return this.isProvidingStrongPower(par1IBlockAccess, par2, par3, par4, par5);
-
-        //return par1IBlockAccess.getBlockMetadata(par2, par3, par4) & 15;
+        TileEntity te = world.getBlockTileEntity(x, y, z);
+        if (te instanceof SignalTerminalLogic)
+        {
+            return ((SignalTerminalLogic) te).isProvidingWeakPower(localSide);
+        }
+        
+        return 0;
     }
 
     /**
@@ -287,14 +285,13 @@ public class SignalTerminal extends Block implements ITileEntityProvider
      */
     public int isProvidingStrongPower (IBlockAccess world, int x, int y, int z, int localSide)
     {
-        int meta = world.getBlockMetadata(x, y, z);
         TileEntity te = world.getBlockTileEntity(x, y, z);
-        if (!(te instanceof SignalTerminalLogic))
+        if (te instanceof SignalTerminalLogic)
         {
-            return meta & 15;
-        } // Let's just say yes since we don't know better; let's revisit this later as well
-
-        return ((SignalTerminalLogic) te).isProvidingStrongPower(meta, localSide);
+            return ((SignalTerminalLogic) te).isProvidingStrongPower(localSide);
+        } 
+        
+        return 0;
     }
 
     /**
@@ -316,30 +313,119 @@ public class SignalTerminal extends Block implements ITileEntityProvider
     {
         super.onNeighborBlockChange(world, x, y, z, neighborID);
 
-        int meta = world.getBlockMetadata(x, y, z);
-        boolean flag = world.isBlockIndirectlyGettingPowered(x, y, z);
-        boolean flag1 = (meta != 0);
-
-        SignalTerminalLogic logic = (SignalTerminalLogic) world.getBlockTileEntity(x, y, z);
-
-        logic.receiveSignal((flag && !flag1) ? 15 : 0);
-
+        if (neighborID == blockID) {
+            return;
+        }
+        
+        TileEntity te = world.getBlockTileEntity(x, y, z);
+        if (te instanceof SignalTerminalLogic) {
+            ((SignalTerminalLogic)te).onNeighborBlockChange();
+        }
+        
     }
 
+    private static AxisAlignedBB[] getBoxes(SignalTerminalLogic logic)
+    {
+            byte connected[] = logic.getConnectedSides();
+            
+            AxisAlignedBB[] parts = new AxisAlignedBB[HITBOXES];
+            
+            // Center
+            parts[0] = AxisAlignedBB.getBoundingBox(TerminalGeometry.center_min, TerminalGeometry.center_min, TerminalGeometry.center_min, TerminalGeometry.center_max, TerminalGeometry.center_max, TerminalGeometry.center_max);
+            
+            if (connected[ForgeDirection.DOWN.ordinal()] != -1 ) {
+                parts[1] = AxisAlignedBB.getBoundingBox(TerminalGeometry.plate_width_min, TerminalGeometry.plate_low_min, TerminalGeometry.plate_width_min, TerminalGeometry.plate_width_max, TerminalGeometry.plate_low_max, TerminalGeometry.plate_width_max);
+                parts[2] = AxisAlignedBB.getBoundingBox(TerminalGeometry.channel_width_min, TerminalGeometry.channel_low_min, TerminalGeometry.channel_width_min, TerminalGeometry.channel_width_max, TerminalGeometry.channel_low_max, TerminalGeometry.channel_width_max);
+            }
+
+            if (connected[ForgeDirection.UP.ordinal()] != -1) {
+                parts[3] = AxisAlignedBB.getBoundingBox(TerminalGeometry.plate_width_min, TerminalGeometry.plate_high_min, TerminalGeometry.plate_width_min, TerminalGeometry.plate_width_max, TerminalGeometry.plate_high_max, TerminalGeometry.plate_width_max);
+                parts[4] = AxisAlignedBB.getBoundingBox(TerminalGeometry.channel_width_min, TerminalGeometry.channel_high_min, TerminalGeometry.channel_width_min, TerminalGeometry.channel_width_max, TerminalGeometry.channel_high_max, TerminalGeometry.channel_width_max);
+            }
+
+            if (connected[ForgeDirection.NORTH.ordinal()] != -1 ) {
+                parts[5] = AxisAlignedBB.getBoundingBox(TerminalGeometry.plate_width_min, TerminalGeometry.plate_width_min, TerminalGeometry.plate_high_min, TerminalGeometry.plate_width_max, TerminalGeometry.plate_width_max, TerminalGeometry.plate_high_max);
+                parts[6] = AxisAlignedBB.getBoundingBox(TerminalGeometry.channel_width_min, TerminalGeometry.channel_width_min, TerminalGeometry.channel_high_min, TerminalGeometry.channel_width_max, TerminalGeometry.channel_width_max, TerminalGeometry.channel_high_max);
+            }
+            
+            if (connected[ForgeDirection.SOUTH.ordinal()] != -1 ) {
+                parts[7] = AxisAlignedBB.getBoundingBox(TerminalGeometry.plate_width_min, TerminalGeometry.plate_width_min, TerminalGeometry.plate_low_min, TerminalGeometry.plate_width_max, TerminalGeometry.plate_width_max, TerminalGeometry.plate_low_max);
+                parts[8] = AxisAlignedBB.getBoundingBox(TerminalGeometry.channel_width_min, TerminalGeometry.channel_width_min, TerminalGeometry.channel_low_min, TerminalGeometry.channel_width_max, TerminalGeometry.channel_width_max, TerminalGeometry.channel_low_max);
+            }
+            
+            if (connected[ForgeDirection.WEST.ordinal()] != -1 ) {
+                parts[9] = AxisAlignedBB.getBoundingBox(TerminalGeometry.plate_low_min, TerminalGeometry.plate_width_min, TerminalGeometry.plate_width_min, TerminalGeometry.plate_low_max, TerminalGeometry.plate_width_max, TerminalGeometry.plate_width_max);
+                parts[10] = AxisAlignedBB.getBoundingBox(TerminalGeometry.channel_low_min, TerminalGeometry.channel_width_min, TerminalGeometry.channel_width_min, TerminalGeometry.channel_low_max, TerminalGeometry.channel_width_max, TerminalGeometry.channel_width_max);
+            }
+            
+            if (connected[ForgeDirection.EAST.ordinal()] != -1 ) {
+                parts[11] = AxisAlignedBB.getBoundingBox(TerminalGeometry.plate_high_min, TerminalGeometry.plate_width_min, TerminalGeometry.plate_width_min, TerminalGeometry.plate_high_max, TerminalGeometry.plate_width_max, TerminalGeometry.plate_width_max);
+                parts[12] = AxisAlignedBB.getBoundingBox(TerminalGeometry.channel_high_min, TerminalGeometry.channel_width_min, TerminalGeometry.channel_width_min, TerminalGeometry.channel_high_max, TerminalGeometry.channel_width_max, TerminalGeometry.channel_width_max);
+            }
+            
+            return parts;
+    }
+    
+    private static int closestClicked (EntityPlayer player, double reachDistance, SignalTerminalLogic terminal, AxisAlignedBB[] parts) {
+        int closest = -1;
+        
+        Vec3 playerPosition = Vec3.createVectorHelper(player.posX - terminal.xCoord, player.posY - terminal.yCoord + player.getEyeHeight(), player.posZ - terminal.zCoord);
+        Vec3 playerLook = player.getLookVec();
+        
+        Vec3 playerViewOffset = Vec3.createVectorHelper(playerPosition.xCoord + playerLook.xCoord * reachDistance, playerPosition.yCoord + playerLook.yCoord * reachDistance, playerPosition.zCoord + playerLook.zCoord * reachDistance);
+        double closestCalc = Double.MAX_VALUE;
+        double hitDistance = 0D;
+        
+        for (int i = 0; i < parts.length; i++) {
+            if (parts[i] == null) {
+                continue;
+            }
+            MovingObjectPosition hit = parts[i].calculateIntercept(playerPosition, playerViewOffset);
+            if (hit != null)
+            {
+                hitDistance = playerPosition.distanceTo(hit.hitVec);
+                if (hitDistance < closestCalc) {
+                    closestCalc = hitDistance;
+                    closest = i;
+                }
+            }
+        }
+        return closest;
+    }
+    
+    
     @Override
     public boolean onBlockActivated (World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         int meta = par1World.getBlockMetadata(par2, par3, par4);
         TileEntity te = par1World.getBlockTileEntity(par2, par3, par4);
 
-        if (par5EntityPlayer.isSneaking())
+        if (!par1World.isRemote)
         {
             if (te != null && te instanceof SignalTerminalLogic)
             {
-                ((SignalTerminalLogic) te).nextChannel();
-                if (par1World.isRemote)
-                {
-                    par1World.markBlockForRenderUpdate(par2, par3, par4);
+//                ((SignalTerminalLogic) te).nextChannel();
+//                if (par1World.isRemote)
+//                {
+//                    par1World.markBlockForRenderUpdate(par2, par3, par4);
+//                }
+                int boxHit = closestClicked(par5EntityPlayer, 3.0F, (SignalTerminalLogic)te, getBoxes((SignalTerminalLogic)te));
+                if (boxHit < 0 || boxHit >= HITBOXES) {
+                    return false;
+                }
+                if (boxHit == 0) {
+                    return false;
+                }
+                int side = sideBoxMapping[boxHit];
+                
+                if (side < 0 || side >= 6) {
+                    return false;
+                }
+                
+                if (par5EntityPlayer.isSneaking()) {
+                    ((SignalTerminalLogic)te).prevChannel(side);
+                } else {
+                    ((SignalTerminalLogic)te).nextChannel(side);
                 }
             }
         }
@@ -362,20 +448,23 @@ public class SignalTerminal extends Block implements ITileEntityProvider
         TileEntity te = world.getBlockTileEntity(x, y, z);
         if (te instanceof SignalTerminalLogic)
         {
+            NBTTagCompound data = itemStack.stackTagCompound;
+            if (data != null && data.hasKey("connectedSide")) {
+                ((SignalTerminalLogic) te).addPendingSide(data.getInteger("connectedSide"));
+                itemStack.stackTagCompound = null;
+            }
             ((SignalTerminalLogic) te).connectPending();
         }
     }
 
     @Override
-    public boolean removeBlockByPlayer (World world, EntityPlayer player, int x, int y, int z)
-    {
+    public void breakBlock (World world, int x, int y, int z, int id, int meta) {
         TileEntity te = world.getBlockTileEntity(x, y, z);
-        if (te instanceof SignalTerminalLogic)
-        {
-            ((SignalTerminalLogic) te).receiveSignals(new byte[] { (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0 });
+        if (te instanceof SignalTerminalLogic) {
+            ((SignalTerminalLogic)te).notifyBreak();
         }
-
-        return super.removeBlockByPlayer(world, player, x, y, z);
+        
+        super.breakBlock(world, x, y, z, id, meta);
     }
 
 }

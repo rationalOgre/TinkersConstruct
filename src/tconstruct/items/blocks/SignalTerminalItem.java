@@ -10,6 +10,7 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
@@ -59,16 +60,6 @@ public class SignalTerminalItem extends ItemBlock
     @Override
     public boolean onItemUse (ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        if (super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ))
-        {
-            return true;
-        }
-
-        if (!(_canPlaceItemBlockOnSide(world, x, y, z, side)))
-        {
-            return false;
-        }
-
         int tmpX = x;
         int tmpY = y;
         int tmpZ = z;
@@ -110,12 +101,24 @@ public class SignalTerminalItem extends ItemBlock
             tside = side;
             break;
         }
+        NBTTagCompound data = data = new NBTTagCompound();
+        stack.stackTagCompound = data;
+        data.setInteger("connectedSide", tside);
+
+        if (super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ))
+        {
+            return true;
+        }
+
+        if (!(_canPlaceItemBlockOnSide(world, x, y, z, side)))
+        {
+            return false;
+        }
 
         TileEntity te = world.getBlockTileEntity(tmpX, tmpY, tmpZ);
 
         ((SignalTerminalLogic) te).addPendingSide(tside);
         ((SignalTerminalLogic) te).connectPending();
-        --stack.stackSize;
 
         return true;
 

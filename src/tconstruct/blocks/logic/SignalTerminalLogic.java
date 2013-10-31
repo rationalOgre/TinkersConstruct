@@ -2,9 +2,8 @@ package tconstruct.blocks.logic;
 
 import tconstruct.TConstruct;
 import tconstruct.blocks.SignalTerminal;
-import tconstruct.blocks.component.SignalBusMasterLogic;
+import tconstruct.blocks.TConstructBlock;
 import tconstruct.common.TContent;
-import tconstruct.library.multiblock.MultiblockMasterBaseLogic;
 import tconstruct.library.util.CoordTuple;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
@@ -18,31 +17,40 @@ import net.minecraftforge.common.ForgeDirection;
 
 public class SignalTerminalLogic extends TileEntity
 {
-    private boolean[] connectedSides = null;
+    private byte[] connectedSides = new byte[6];
+    private byte[] receivingSides = new byte[6];
+    private byte[] sideChannel = new byte[6];
+    
     private int pendingSide = -1;
     private CoordTuple signalBus = null;
     private boolean doUpdate = false;
-    private byte signalSetting = 0;
-    private byte signalStrength = 0;
-    private boolean newTile = true;
-    private byte cachedSignal = 0;
     private boolean isRegistered = false;
 
     public SignalTerminalLogic()
     {
         super();
-        connectedSides = new boolean[] { false, false, false, false, false, false };
-
+        
+        for (int i = 0; i < 6; i++) {
+            connectedSides[i] = -1;
+            receivingSides[i] = -1;
+            sideChannel[i] = 0;
+        }
+        
     }
 
     public byte getSignal (byte signal)
     {
-        if (signal != signalSetting)
-        {
-            return 0;
+        byte highSignal = 0;
+        
+        for (int i = 0; i < 6; i++) {
+            if (sideChannel[i] == signal && receivingSides[i] > 0) {
+                if (receivingSides[i] > highSignal) {
+                    highSignal = receivingSides[i];
+                }
+            }
         }
 
-        return signalStrength;
+        return highSignal;
     }
 
     private void tryRegister ()
@@ -84,30 +92,29 @@ public class SignalTerminalLogic extends TileEntity
     {
         super.readFromNBT(data);
 
-        signalSetting = data.getByte("signalSetting");
-        signalStrength = data.getByte("signalStrength");
+        sideChannel = data.getByteArray("sideChannel");
+        receivingSides = data.getByteArray("receivingSides");
+        connectedSides = data.getByteArray("connectedSides");
 
-        byte tbyte = data.getByte("connectedSides");
-        for (int n = 0; n < 6; n++)
-        {
-            if (((tbyte >> n) & 1) == 1)
-            {
-                connectedSides[n] = true;
-            }
-        }
-
+        if (sideChannel.length != 6) { sideChannel = new byte[] { 0, 0, 0, 0, 0, 0 }; }
+        if (receivingSides.length != 6) { receivingSides = new byte[] { -1, -1, -1, -1, -1, -1 }; }
+        if (connectedSides.length != 6) { connectedSides = new byte[] { -1, -1, -1, -1, -1, -1 }; }
+        
         int tX = data.getInteger("BusX");
         int tY = data.getInteger("BusY");
         int tZ = data.getInteger("BusZ");
 
-        signalBus = new CoordTuple(tX, tY, tZ);
+        if (tX == xCoord && tY == yCoord && tZ == zCoord) {
+            signalBus = null;
+        } else {
+            signalBus = new CoordTuple(tX, tY, tZ);
+        }
 
         if (!isRegistered)
         {
             tryRegister();
         }
 
-        newTile = false;
         doUpdate = true;
     }
 
@@ -116,18 +123,9 @@ public class SignalTerminalLogic extends TileEntity
     {
         super.writeToNBT(data);
 
-        data.setByte("signalSetting", signalSetting);
-        data.setByte("signalStrength", signalStrength);
-
-        byte tbyte = (byte) 0;
-        for (int n = 0; n < 6; n++)
-        {
-            if (connectedSides[n])
-            {
-                tbyte = (byte) ((int) tbyte | (1 << n));
-            }
-        }
-        data.setByte("connectedSides", tbyte);
+        data.setByteArray("sideChannel", sideChannel);
+        data.setByteArray("receivingSides", receivingSides);
+        data.setByteArray("connectedSides", connectedSides);
 
         if (signalBus != null)
         {
@@ -137,9 +135,9 @@ public class SignalTerminalLogic extends TileEntity
         }
         else
         {
-            data.setInteger("BusX", 0);
-            data.setInteger("BusY", 0);
-            data.setInteger("BusZ", 0);
+            data.setInteger("BusX", xCoord);
+            data.setInteger("BusY", yCoord);
+            data.setInteger("BusZ", zCoord);
         }
     }
 
@@ -156,6 +154,10 @@ public class SignalTerminalLogic extends TileEntity
             return;
         }
 
+        if (!(worldObj.getChunkProvider().chunkExists(signalBus.x >> 4, signalBus.z >> 4))) {
+            return;
+        }
+        
         if (!(signalBus instanceof CoordTuple))
         {
             signalBus = null;
@@ -182,7 +184,7 @@ public class SignalTerminalLogic extends TileEntity
 
         if (brainless)
         {
-            this.receiveSignals(new byte[] { 0, 0, 0, 0, 0, 0 });
+            this.receiveSignals(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
             doUpdate = true;
         }
 
@@ -191,18 +193,18 @@ public class SignalTerminalLogic extends TileEntity
     @Override
     public void updateEntity ()
     {
-        if (pendingSide >= 0 && pendingSide < 6)
+        if (pendingSide >= 0 && pendingSide < 6 && connectedSides[pendingSide] == -1)
         {
-            connectedSides[pendingSide] = true;
+            connectedSides[pendingSide] = 0;
             pendingSide = -1;
         }
-
-        checkSanity();
 
         if (!doUpdate)
         {
             return;
         }
+        
+        //checkSanity();
 
         if (!isRegistered)
         {
@@ -223,15 +225,6 @@ public class SignalTerminalLogic extends TileEntity
         {
             return;
         }
-        TileEntity te = worldObj.getBlockTileEntity(signalBus.x, signalBus.y, signalBus.z);
-        if (te instanceof SignalBusLogic)
-        {
-            MultiblockMasterBaseLogic master = ((SignalBusLogic) te).getMultiblockMaster();
-            if (master instanceof SignalBusMasterLogic)
-            {
-                ((SignalBusMasterLogic) master).updateSignal(signalBus, signalSetting, signalStrength);
-            }
-        }
 
         doUpdate = false;
 
@@ -243,60 +236,94 @@ public class SignalTerminalLogic extends TileEntity
         return;
     }
 
-    public void reportToMaster (SignalBusMasterLogic master)
-    {
-        int meta = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
-
-        master.updateSignal(new CoordTuple(xCoord, yCoord, zCoord), signalSetting, signalStrength);
-
-        return;
-    }
-
-    public void receiveSignal (int strength)
-    {
-        signalStrength = (byte) strength;
-        doUpdate = true;
-    }
-
     public void receiveSignals (byte[] signals)
     {
-        int meta = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
-
-        if (meta == 0 && signalStrength > 0)
-        {
-            return;
-        }
-
-        if (signals[(byte) signalSetting] == cachedSignal)
-        {
-            return;
-        }
-
-        if (signals[(byte) signalSetting] > 0)
-        {
-            worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, signals[(byte) signalSetting], 1);
-        }
-        else
-        {
-            worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, 0, 1);
-        }
-        // Notify direct neighbors
-        worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, TContent.signalTerminal.blockID);
-        // Notify connected neighbors direction (strong power)
-        for (int n = 0; n < 6; n++)
-        {
-            if (connectedSides[n])
-            {
-                ForgeDirection dir = ForgeDirection.VALID_DIRECTIONS[n];
-                if (dir == ForgeDirection.NORTH || dir == ForgeDirection.SOUTH)
-                {
-                    dir = dir.getOpposite();
+        int oldValue;
+        
+        for (int i = 0; i < 6; i++) {
+            if (connectedSides[i] != -1) {
+                oldValue = connectedSides[i];
+                if (signals[sideChannel[i]] > receivingSides[i]) {
+                    receivingSides[i] = 0;
+                    connectedSides[i] = signals[sideChannel[i]];
                 }
-                worldObj.notifyBlocksOfNeighborChange(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ, TContent.signalTerminal.blockID);
+                if (receivingSides[i] == 0 && connectedSides[i] != signals[sideChannel[i]]) {
+                    connectedSides[i] = signals[sideChannel[i]];
+                }
+                
+                if (oldValue != connectedSides[i])
+                {
+                    worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, TConstruct.instance.content.signalTerminal.blockID);
+                }
+                
             }
         }
+    }
+    
+    public void sendSignals () {
+        if (!(signalBus instanceof CoordTuple)) {
+            return;
+        }
+        TileEntity te = worldObj.getBlockTileEntity(signalBus.x, signalBus.y, signalBus.z);
+        if (!(te instanceof SignalBusLogic)) {
+            return;
+        }
+        byte[] highSignal = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        
+        int indirect = 0;
+        int direct = 0;
+        int offset[] = new int[] { 0, 0, 0 };
+        int oSide = 0;
+        for (int i = 0; i < 6; i++) {
+            if (connectedSides[i] != -1) {
 
-        cachedSignal = signals[(byte) signalSetting];
+                offset[0] = 0;
+                offset[1] = 0;
+                offset[2] = 0;
+                switch (i) {
+                case 0:
+                    offset[1] += -1;
+                    oSide = 1;
+                    break;
+                case 1:
+                    offset[1] += 1;
+                    oSide = 0;
+                    break;
+                case 2:
+                    offset[2] += 1;
+                    oSide = 3;
+                    break;
+                case 3:
+                    offset[2] += -1;
+                    oSide = 2;
+                    break;
+                case 4:
+                    offset[0] += -1;
+                    oSide = 5;
+                    break;
+                case 5:
+                    offset[0] += 1;
+                    oSide = 4;
+                    break;
+                }
+                indirect = worldObj.getStrongestIndirectPower(xCoord + offset[0], yCoord + offset[1], zCoord + offset[2]);
+                direct = worldObj.isBlockProvidingPowerTo(xCoord + offset[0], yCoord + offset[1], zCoord + offset[2], oSide);
+                                
+                if (Math.max(indirect, direct) > connectedSides[i])
+                {
+                    receivingSides[i] = (byte)Math.max(indirect, direct);
+                    connectedSides[i] = 0;
+                    highSignal[sideChannel[i]] = (byte)Math.max(highSignal[sideChannel[i]], Math.max(indirect, direct));
+                }
+                else {
+                    receivingSides[i] = 0;
+                    connectedSides[i] = 0;
+                }
+            }
+            
+        }
+        
+        ((SignalBusLogic)te).fullUpdateLocalSignals();
     }
 
     public void setBusCoords (World world, int x, int y, int z)
@@ -308,7 +335,7 @@ public class SignalTerminalLogic extends TileEntity
         doUpdate = true;
     }
 
-    public int isProvidingStrongPower (int meta, int side)
+    public int isProvidingStrongPower (int side)
     {
         int tside = side;
 
@@ -338,9 +365,48 @@ public class SignalTerminalLogic extends TileEntity
 
         if (side >= 0 && tside < 6)
         {
-            if (connectedSides[tside])
+            if (connectedSides[tside] > 0 && receivingSides[tside] == 0)
             {
-                return meta;
+                return connectedSides[tside];
+            }
+        }
+
+        return 0;
+    }
+    
+    public int isProvidingWeakPower (int side)
+    {
+        int tside = side;
+
+        switch (side)
+        {
+        case 0:
+            tside = 1;
+            break;
+        case 1:
+            tside = 0;
+            break;
+        case 2:
+            tside = 2;
+            break;
+        case 3:
+            tside = 3;
+            break;
+        case 4:
+            tside = 5;
+            break;
+        case 5:
+            tside = 4;
+            break;
+        default:
+            tside = side;
+        }
+
+        if (side >= 0 && tside < 6)
+        {
+            if (connectedSides[tside] > 1 && receivingSides[tside] == 0)
+            {
+                return connectedSides[tside] - 1;
             }
         }
 
@@ -354,30 +420,15 @@ public class SignalTerminalLogic extends TileEntity
 
     public void connectPending ()
     {
-        if (newTile)
+        if (pendingSide >= 0 && pendingSide < 6 && connectedSides[pendingSide] == -1)
         {
-            int side = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
-            connectedSides[side] = true;
-            newTile = false;
-
-            if (!worldObj.isRemote)
-            {
-                worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, 0, 1);
-            }
-            doUpdate = true;
+            connectedSides[pendingSide] = 0;
         }
-        else
-        {
-            if (pendingSide >= 0 && pendingSide < 6)
-            {
-                connectedSides[pendingSide] = true;
-            }
-            pendingSide = -1;
-            doUpdate = true;
-        }
+        pendingSide = -1;
+        doUpdate = true;
     }
 
-    public boolean[] getConnectedSides ()
+    public byte[] getConnectedSides ()
     {
         return connectedSides.clone();
     }
@@ -391,7 +442,7 @@ public class SignalTerminalLogic extends TileEntity
             byte tbyte = (byte) 0;
             for (int n = 0; n < 6; n++)
             {
-                if (connectedSides[n])
+                if (connectedSides[n] != -1)
                 {
                     tbyte &= (1 << n);
                 }
@@ -399,7 +450,7 @@ public class SignalTerminalLogic extends TileEntity
             tstr += "Sides: " + tbyte + "\n";
         }
 
-        return tstr + "Channel: " + signalSetting + "\n" + "Strength: " + signalStrength;
+        return tstr;
     }
 
     /* Packets */
@@ -420,28 +471,106 @@ public class SignalTerminalLogic extends TileEntity
         this.doUpdate = true;
     }
 
-    public static Icon getChannelIcon (IBlockAccess world, int x, int y, int z)
+    public static Icon getChannelIcon (IBlockAccess world, int x, int y, int z, int side)
     {
         TileEntity te = world.getBlockTileEntity(x, y, z);
         if (te != null && te instanceof SignalTerminalLogic)
         {
-            int channel = ((SignalTerminalLogic) te).signalSetting;
+            int channel = ((SignalTerminalLogic) te).sideChannel[side];
 
             return ((SignalTerminal) TConstruct.instance.content.signalTerminal).getChannelIcon(channel);
         }
 
         return ((SignalTerminal) TConstruct.instance.content.signalTerminal).getChannelIcon(0);
     }
+    
+    public static Icon[] getChannelIcons () {
+        return ((SignalTerminal) TConstruct.instance.content.signalTerminal).channelIcons;
+    }
+    
+    public static Icon getChannelIcon (int channel) {
+        return getChannelIcons()[channel];
+    }
+    
+    public Icon getChannelIconFromLogic(int side) {
+        return getChannelIcons()[sideChannel[side]];
+    }
 
-    public void nextChannel ()
+    public void nextChannel (int side)
     {
-        signalSetting++;
+        sideChannel[side]++;
 
-        if (signalSetting >= 16)
+        if (sideChannel[side] >= 16)
         {
-            signalSetting = 0;
+            sideChannel[side] = 0;
         }
 
         doUpdate = true;
+    }
+
+    public void prevChannel (int side)
+    {
+        sideChannel[side]--;
+        
+        if (sideChannel[side] < 0)
+        {
+            sideChannel[side] = 15;
+        }
+        
+        doUpdate = true;
+    }
+
+    public void notifyBreak ()
+    {
+        if (!(worldObj instanceof World))
+        {
+            return;
+        }
+        if (!(signalBus instanceof CoordTuple))
+        {
+            return;
+        }
+
+        TileEntity te = worldObj.getBlockTileEntity(signalBus.x, signalBus.y, signalBus.z);
+        if (te == null || !(te instanceof SignalBusLogic))
+        {
+            return;
+        }
+
+        ((SignalBusLogic) te).unregisterTerminal(worldObj, xCoord, yCoord, zCoord);
+    }
+    
+    public void onNeighborBlockChange () {
+        sendSignals();
+    }
+
+    public Icon[] getSideIcons ()
+    {
+        Icon[] icons = getChannelIcons();
+        Icon[] sideIcons = new Icon[6];
+        
+        for (int i = 0; i < 6; i++) {
+            if (sideChannel[i] > 0) {
+                sideIcons[i] = icons[sideChannel[i]];
+            }
+            else {
+                sideIcons[i] = icons[0];
+            }
+        }
+        
+        return sideIcons;
+    }
+    
+    public byte[] getReceivedSignals() {
+        byte[] highChannel = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        
+        for (int i = 0; i < 6; i++) {
+            if (connectedSides[i] != -1) 
+            {
+                highChannel[sideChannel[i]] = (byte)Math.max(highChannel[sideChannel[i]], receivingSides[i]);
+            }
+        }
+
+        return highChannel;
     }
 }

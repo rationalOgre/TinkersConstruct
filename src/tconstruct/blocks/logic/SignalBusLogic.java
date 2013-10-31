@@ -1,8 +1,7 @@
 package tconstruct.blocks.logic;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.text.MaskFormatter;
 
@@ -31,7 +30,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
 {
     private int ticks = 0;
-    private Set<CoordTuple> terminals = new HashSet<CoordTuple>();
+    private List<CoordTuple> terminals = new LinkedList<CoordTuple>();
+    private byte[] localHighSignals = new byte[16]; 
+    private byte[] cachedReceivedSignals = new byte[16];
 
     public SignalBusLogic()
     {
@@ -55,30 +56,37 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
         {
             return;
         }
-
-        byte[] signals = ((SignalBusMasterLogic) this.getMultiblockMaster()).getSignals();
-        Set<CoordTuple> remove = new HashSet<CoordTuple>();
-        TileEntity te = null;
-        for (CoordTuple term : terminals)
-        {
-            te = worldObj.getBlockTileEntity(term.x, term.y, term.z);
-            if (te instanceof SignalTerminalLogic)
-            {
-                ((SignalTerminalLogic) te).receiveSignals(signals);
-            }
-            else
-            {
-                remove.add(term);
-            }
-        }
-
-        if (remove.size() > 0)
-        {
-            for (CoordTuple term : remove)
-            {
-                terminals.remove(term);
-            }
-        }
+        
+//        if (++ticks % 20 == 0) {
+//            
+//            byte[] signals = ((SignalBusMasterLogic) this.getMultiblockMaster()).getSignals();
+//            List<CoordTuple> remove = new LinkedList<CoordTuple>();
+//            TileEntity te = null;
+//            for (CoordTuple term : terminals)
+//            {
+//                te = worldObj.getBlockTileEntity(term.x, term.y, term.z);
+//                if (te instanceof SignalTerminalLogic)
+//                {
+//                    ((SignalTerminalLogic) te).receiveSignals(signals);
+//                }
+//                else
+//                {
+//                    remove.add(term);
+//                }
+//            }
+//    
+//            if (remove.size() > 0)
+//            {
+//                for (CoordTuple term : remove)
+//                {
+//                    terminals.remove(term);
+//                }
+//            }
+//        }
+            
+//        if (ticks >= 20) {
+//            ticks = 0;
+//        }
     }
 
     public boolean registerTerminal (World world, int x, int y, int z)
@@ -91,8 +99,12 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
         {
             if (worldObj.getBlockTileEntity(x, y, z) instanceof SignalTerminalLogic)
             {
-                terminals.add(new CoordTuple(x, y, z));
-                ((SignalTerminalLogic) world.getBlockTileEntity(x, y, z)).setBusCoords(world, xCoord, yCoord, zCoord);
+                CoordTuple newTerm = new CoordTuple(x, y, z);
+                if (!terminals.contains(newTerm)) {
+                    terminals.add(newTerm);
+                    ((SignalTerminalLogic) world.getBlockTileEntity(x, y, z)).setBusCoords(world, xCoord, yCoord, zCoord);
+                    ((SignalBusMasterLogic) this.getMultiblockMaster()).recalculateBus(this);
+                }
                 return true;
             }
         }
@@ -115,7 +127,12 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
         {
             return false;
         }
-        return terminals.remove(new CoordTuple(x, y, z));
+        if (terminals.remove(new CoordTuple(x, y, z))) {
+            fullUpdateLocalSignals();
+            ((SignalBusMasterLogic)this.getMultiblockMaster()).recalculateBus(this);
+            return true;
+        }
+        return false;
     }
 
     public boolean hasTerminals ()
@@ -132,27 +149,6 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
         }
 
         return false;
-    }
-
-    public void doTerminalScan ()
-    {
-        TileEntity te = null;
-        SignalTerminalLogic tterm = null;
-        byte[] signals = ((SignalBusMasterLogic) this.getMultiblockMaster()).getSignals();
-
-        for (CoordTuple term : terminals)
-        {
-            te = worldObj.getBlockTileEntity(term.x, term.y, term.z);
-            if (te instanceof SignalTerminalLogic)
-            {
-                ((SignalTerminalLogic) te).receiveSignals(signals);
-                ((SignalTerminalLogic) te).reportToMaster((SignalBusMasterLogic) this.getMultiblockMaster());
-            }
-            else
-            {
-                terminals.remove(term);
-            }
-        }
     }
 
     @Override
@@ -244,24 +240,57 @@ public class SignalBusLogic extends MultiblockBaseLogic implements IActiveLogic
         return "Connected: " + terminals.size();
     }
 
-    public int getSignal (byte channel)
-    {
-        int highSignal = 0;
+    public byte[] getLocalSignals () {
+        return localHighSignals;
+    }
+        
+//    public void updateLocalSignals (byte[] signals, boolean sendNotify) {
+//        
+//        for (int i = 0; i < 16; i++) {
+//            localHighSignals[i] = signals[i] > localHighSignals[i] ? signals[i] : localHighSignals[i];
+//        }
+//        
+//        if (sendNotify) {
+//            ((SignalBusMasterLogic)getMultiblockMaster()).updateSignals(getCoordInWorld(), localHighSignals);
+//        }
+//    }
+//        
+    public void fullUpdateLocalSignals () {
+        localHighSignals = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        
+        byte[] termSignals = null;
+        
         TileEntity te = null;
-        int tempSignal = 0;
-        for (CoordTuple term : terminals)
-        {
+        for (CoordTuple term : terminals) {
+            if (!worldObj.getChunkProvider().chunkExists(term.x >> 4, term.z >> 4)) {
+                continue;
+            }
             te = worldObj.getBlockTileEntity(term.x, term.y, term.z);
-            if (te instanceof SignalTerminalLogic)
-            {
-                tempSignal = ((SignalTerminalLogic) te).getSignal(channel);
-                if (tempSignal > highSignal)
-                {
-                    highSignal = tempSignal;
+            if (te instanceof SignalTerminalLogic) {
+                termSignals = ((SignalTerminalLogic)te).getReceivedSignals();
+                
+                for (int i = 0; i < 16; i++) {
+                    localHighSignals[i] = (byte)Math.max(termSignals[i], localHighSignals[i]);
                 }
             }
         }
+        
+        ((SignalBusMasterLogic)getMultiblockMaster()).updateSignals(getCoordInWorld(), localHighSignals);
+    }
 
-        return highSignal;
+    public void sendUpdates (byte[] signals)
+    {
+        cachedReceivedSignals = signals.clone();
+        TileEntity te = null;
+        
+        for (CoordTuple term : terminals) {
+            if (!worldObj.getChunkProvider().chunkExists(term.x >> 4, term.z >> 4)) {
+                continue;
+            }
+            te = worldObj.getBlockTileEntity(term.x, term.y, term.z);
+            if (te instanceof SignalTerminalLogic) {
+                ((SignalTerminalLogic)te).receiveSignals(signals);
+            }
+        }
     }
 }

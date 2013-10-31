@@ -1,7 +1,7 @@
 package tconstruct.blocks.component;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,10 +14,11 @@ import tconstruct.library.util.CoordTuple;
 
 public class SignalBusMasterLogic extends MultiblockMasterBaseLogic
 {
+    private boolean forceUpdate = false;
     private byte[] signals = new byte[16];
-    private HashMap<Byte, CoordTuple> highSignal = new HashMap<Byte, CoordTuple>();
+    private CoordTuple[] signalProviderCoords = new CoordTuple[16];
 
-    private Set<CoordTuple> tetheredBuses = new HashSet<CoordTuple>(); // Buses that contain linked Terminals
+    private List<CoordTuple> tetheredBuses = new LinkedList<CoordTuple>(); // Buses that contain linked Terminals
 
     public SignalBusMasterLogic(World world)
     {
@@ -29,97 +30,134 @@ public class SignalBusMasterLogic extends MultiblockMasterBaseLogic
         }
     }
 
+    @Override
+    public boolean doUpdate ()
+    {
+        if (worldObj.isRemote || !forceUpdate) {
+            return false;
+        }
+        
+        forceUpdate = false;
+
+        for (int i = 0; i < 16; i++) {
+            updateSignal(i);
+        }
+        
+        sendUpdates();
+
+        return true;
+    }
+
     public byte[] getSignals ()
     {
         return signals.clone();
     }
 
-    @Override
-    public boolean doUpdate ()
-    {
-
-        return false;
-    }
-
     public void updateSignal (CoordTuple source, int channel, int strength)
     {
-        if (worldObj.isRemote)
+        if (worldObj.isRemote || channel < 0 || channel >= 16 || strength < 0 || strength >= 16)
         {
             return;
         }
 
-        if (SignalBusLogic.hasTerminals(worldObj, source.x, source.y, source.z) && connectedBlocks.contains(source))
-        {
-            if (!(tetheredBuses.contains(source)))
-            {
-                tetheredBuses.add(new CoordTuple(source));
-            }
-        }
-        else
-        {
-            if (tetheredBuses.contains(source))
-            {
-                tetheredBuses.remove(source);
-            }
-        }
-
-        if (highSignal.containsKey(((byte) channel)))
-        {
-            if (!(highSignal.get((byte) channel) instanceof CoordTuple))
-            {
-                highSignal.remove((byte) channel);
-            }
-        }
-        if (highSignal.containsKey((byte) channel))
-        {
-            highSignal.remove((byte) channel);
-            int newStrength = 0;
-            CoordTuple newHighCoords = null;
-            TileEntity te = null;
-            for (CoordTuple src : tetheredBuses)
-            {
-                te = worldObj.getBlockTileEntity(src.x, src.y, src.z);
-                if (src.equals(source))
-                {
-                    continue;
-                }
-                if (te instanceof SignalBusLogic)
-                {
-                    int srcStrength = ((SignalBusLogic) te).getSignal((byte) channel);
-                    if (srcStrength > newStrength)
-                    {
-                        newStrength = srcStrength;
-                        newHighCoords = new CoordTuple(src);
-                    }
-                }
-                else
-                {
-                    //tetheredBuses.remove(src);
-                }
-
-            }
-            if (newStrength > 0)
-            {
-                signals[channel] = (byte) newStrength;
-                highSignal.put((byte) channel, newHighCoords);
-            }
-            else
-            {
-                signals[channel] = 0;
-            }
-        }
-
-        if (signals[channel] < strength)
+//        if (SignalBusLogic.hasTerminals(worldObj, source.x, source.y, source.z) && connectedBlocks.contains(source))
+//        {
+//            if (!(tetheredBuses.contains(source)))
+//            {
+//                tetheredBuses.add(new CoordTuple(source));
+//                forceUpdate = true;
+//            }
+//        }
+//        else
+//        {
+//            if (tetheredBuses.contains(source))
+//            {
+//                tetheredBuses.remove(source);
+//                forceUpdate = true;
+//            }
+//        }
+//        
+        if (source.equals(signalProviderCoords[channel]) && signals[channel] > strength) {
+            // Our highest provider is bailing on us. Time to find a new one
+            updateSignal(channel);
+            forceUpdate = true;
+        } else if (strength > signals[channel])
         {
             signals[channel] = (byte) strength;
 
-            if (highSignal.containsKey((byte) channel))
-            {
-                highSignal.remove((byte) channel);
-            }
-            highSignal.put((byte) channel, new CoordTuple(source));
+            signalProviderCoords[channel] = new CoordTuple(source);
+            
+            forceUpdate = true;
         }
-
+    }
+    
+    public void updateSignals (CoordTuple source, byte[] signals) {
+        if (signals.length != 16) {
+            return;
+        }
+        
+        if (!(tetheredBuses.contains(source))) {
+            tetheredBuses.add(source);
+        }
+        
+        for (int i = 0; i < 16; i++) {
+            updateSignal(source, i, signals[i]);
+        }
+    }
+    
+    public void updateSignal (int channel) {
+        int highPower = 0;
+        CoordTuple highCoords = null;
+        
+        TileEntity te = null;
+        int tPower = 0;
+        for (CoordTuple bus : tetheredBuses) {
+            if (worldObj.getChunkProvider().chunkExists(bus.x >> 4, bus.z >> 4)) {
+                te = worldObj.getBlockTileEntity(bus.x, bus.y, bus.z);
+                if (te == null || !(te instanceof SignalBusLogic)) {
+                    // Perhaps not the best exception choice, but we can revisit this later
+                    throw new NullPointerException();
+                }
+                
+                tPower = ((SignalBusLogic)te).getLocalSignals()[channel];
+                
+                if (tPower > highPower) {
+                    highPower = tPower;
+                    highCoords = new CoordTuple(bus);
+                }
+            }
+        }
+        
+        if (highPower == 0 || highCoords == null) {
+            signals[channel] = 0;
+            signalProviderCoords[channel] = null;
+        } else {
+            signals[channel] = (byte)highPower;
+            signalProviderCoords[channel] = highCoords;
+        }
+        
+    }
+    
+    public void sendUpdates () {
+        TileEntity te = null;
+        for (CoordTuple bus : tetheredBuses) {
+            te = worldObj.getBlockTileEntity(bus.x, bus.y, bus.z);
+            if (te instanceof SignalBusLogic) {
+                ((SignalBusLogic)te).sendUpdates(signals);
+            }
+        }
+    }
+    
+    public void recalculateBus (SignalBusLogic bus) {
+        CoordTuple busCoords = new CoordTuple (bus.xCoord, bus.yCoord, bus.zCoord);
+        
+        if (!tetheredBuses.contains(bus) && SignalBusLogic.hasTerminals(worldObj, bus.xCoord, bus.yCoord, bus.zCoord))
+        {
+            tetheredBuses.add(busCoords);
+        }
+        updateSignals(busCoords, bus.getLocalSignals());
+        sendUpdates();
+        forceUpdate = true;
     }
 
     @Override
@@ -130,7 +168,7 @@ public class SignalBusMasterLogic extends MultiblockMasterBaseLogic
         if (!tetheredBuses.contains(newMember.getCoordInWorld()) && SignalBusLogic.hasTerminals(worldObj, coords.x, coords.y, coords.z))
         {
             tetheredBuses.add(newMember.getCoordInWorld());
-            ((SignalBusLogic) newMember).doTerminalScan();
+            forceUpdate = true;
         }
     }
 
@@ -139,14 +177,8 @@ public class SignalBusMasterLogic extends MultiblockMasterBaseLogic
     {
         if (tetheredBuses.contains(oldMember.getCoordInWorld()))
         {
-            for (int n = 0; n < 16; n++)
-            {
-                if (highSignal.containsKey((byte) n) && highSignal.get(((byte) n)).equals(oldMember.getCoordInWorld()))
-                {
-                    this.updateSignal(highSignal.get((byte) n), n, 0);
-                }
-            }
             tetheredBuses.remove(oldMember.getCoordInWorld());
+            forceUpdate = true;
         }
     }
 
@@ -164,12 +196,12 @@ public class SignalBusMasterLogic extends MultiblockMasterBaseLogic
         {
             if (signals[n] > newMasterSignals[n])
             {
-                ((SignalBusMasterLogic) newMaster).updateSignal(highSignal.get((byte) n), n, signals[n]);
+                ((SignalBusMasterLogic) newMaster).updateSignal(signalProviderCoords[n], n, signals[n]);
             }
         }
     }
 
-    protected void mergeTethered (Set<CoordTuple> oldMasterTethered)
+    protected void mergeTethered (List<CoordTuple> oldMasterTethered)
     {
         for (CoordTuple bus : oldMasterTethered)
         {
